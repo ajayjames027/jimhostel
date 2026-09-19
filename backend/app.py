@@ -1269,6 +1269,17 @@ def get_defaulters(current_user):
         })
     return jsonify(result)
 
+
+@app.route('/api/my-leaves', methods=['GET'])
+@token_required
+def get_my_leaves(current_user):
+    db = get_db()
+    leaves = list(db["leave_requests"].find({"student_id": current_user["username"]}).sort([("timestamp", -1)]))
+    for l in leaves:
+        l["_id"] = str(l["_id"])
+    return jsonify(leaves)
+
+
 @app.route('/api/announcements', methods=['GET'])
 @token_required
 def get_announcements(current_user):
@@ -1277,6 +1288,17 @@ def get_announcements(current_user):
     for a in ann_list:
         a["_id"] = str(a["_id"])
     return jsonify(ann_list)
+
+
+@app.route('/api/my-leaves', methods=['GET'])
+@token_required
+def get_my_leaves(current_user):
+    db = get_db()
+    leaves = list(db["leave_requests"].find({"student_id": current_user["username"]}).sort([("timestamp", -1)]))
+    for l in leaves:
+        l["_id"] = str(l["_id"])
+    return jsonify(leaves)
+
 
 @app.route('/api/announcements', methods=['POST'])
 @token_required
@@ -1293,6 +1315,17 @@ def create_announcement(current_user):
     result = db["announcements"].insert_one(ann)
     ann["_id"] = str(result.inserted_id)
     return jsonify(ann), 201
+
+
+@app.route('/api/my-leaves', methods=['GET'])
+@token_required
+def get_my_leaves(current_user):
+    db = get_db()
+    leaves = list(db["leave_requests"].find({"student_id": current_user["username"]}).sort([("timestamp", -1)]))
+    for l in leaves:
+        l["_id"] = str(l["_id"])
+    return jsonify(leaves)
+
 
 @app.route('/api/announcements/<ann_id>', methods=['DELETE'])
 @token_required
