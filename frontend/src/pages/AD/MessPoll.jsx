@@ -12,6 +12,7 @@ const MessPoll = () => {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [counts, setCounts] = useState({});
+  const [showOnlyDefaulters, setShowOnlyDefaulters] = useState(false);
   
   useEffect(() => {
     loadConfig();
@@ -198,7 +199,12 @@ const MessPoll = () => {
       <hr className="border-gray-200 my-6" />
 
       {/* DASHBOARD VIEW */}
-      <h3 className="font-extrabold text-xl text-gray-800 tracking-tight">View Consolidations</h3>
+      <div className="flex justify-between items-center -mb-2">
+         <h3 className="font-extrabold text-xl text-gray-800 tracking-tight">View Consolidations</h3>
+         <button onClick={() => setShowOnlyDefaulters(!showOnlyDefaulters)} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm border ${showOnlyDefaulters ? 'bg-orange-50 text-orange-600 border-orange-200 shadow-orange-500/10' : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'}`}>
+             {showOnlyDefaulters ? "Show All Students" : "Show Defaulters Only"}
+         </button>
+      </div>
       <div className="premium-card p-5 grid grid-cols-1 xl:grid-cols-2 gap-6 items-center">
         <div className="flex flex-col md:flex-row gap-4 h-full items-end">
            <div className="flex-1 w-full">
@@ -241,7 +247,7 @@ const MessPoll = () => {
                   </div>
                </div>
                <div className="space-y-2.5 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar mb-4">
-                  {students.filter(s => s.course === grp).map(s => (
+                  {students.filter(s => s.course === grp && (!showOnlyDefaulters || !counts[s._id]?.acknowledged)).map(s => (
                      <div key={s._id} className="flex justify-between px-4 py-3 rounded-xl border bg-white hover:border-gray-300 hover:shadow-sm items-center transition-all">
                         <div>
                            <div className="flex items-center gap-2">
