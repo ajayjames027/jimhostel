@@ -126,5 +126,13 @@
     "action": "Update User",
     "details": "Updated user account: ad_boys",
     "timestamp": "2026-09-19T19:57:24.612184"
+  },
+  {
+    "_id": "1789828555.231563",
+    "user_id": "user_admin",
+    "username": "admin",
+    "action": "Login",
+    "details": "User successfully logged into the system",
+    "timestamp": "2026-09-19T20:05:55.232099"
   }
 ]

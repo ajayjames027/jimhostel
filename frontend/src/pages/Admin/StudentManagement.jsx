@@ -174,12 +174,24 @@ const StudentManagement = () => {
           <p className="text-gray-500 text-xs mt-1">Manage roll lists, allocations, profiles, and departures</p>
         </div>
         
-        <button
-          onClick={() => { resetForm(); setShowAddModal(true); }}
-          className="flex items-center gap-2 px-4 py-2.5 bg-primary hover:bg-primary-hover text-white rounded-xl font-semibold text-xs shadow-md transition-all active:scale-95"
-        >
-          <Plus className="w-4 h-4" /> Add Student
-        </button>
+        <div className="flex flex-col sm:flex-row gap-2">
+            <button
+                onClick={() => window.open(API.defaults.baseURL + '/reports/students-export?format=pdf&token=' + localStorage.getItem('token'), '_blank')} 
+                className="px-4 py-2.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-bold text-xs shadow-md transition-all">
+                Export PDF
+            </button>
+            <button
+                onClick={() => window.open(API.defaults.baseURL + '/reports/students-export?format=excel&token=' + localStorage.getItem('token'), '_blank')} 
+                className="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold text-xs shadow-md transition-all">
+                Export Excel
+            </button>
+            <button
+                onClick={() => { resetForm(); setShowAddModal(true); }}
+                className="flex items-center max-h-[36px] justify-center gap-2 px-4 py-2.5 bg-primary hover:bg-primary-hover text-white rounded-xl font-semibold text-xs shadow-md transition-all active:scale-95"
+            >
+                <Plus className="w-4 h-4" /> Add Student
+            </button>
+        </div>
       </div>
 
       {/* Filters Form */}
