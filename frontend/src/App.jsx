@@ -160,6 +160,11 @@ function App() {
                   <MaintenanceRegistry />
                 </RoleGuard>
               } />
+              <Route path="announcements" element={
+                <RoleGuard allowedRoles={['AD', 'Admin']}>
+                  <Announcements />
+                </RoleGuard>
+              } />
 
               {/* Director Scope */}
               <Route path="director" element={
