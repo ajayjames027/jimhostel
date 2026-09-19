@@ -2,37 +2,28 @@
   {
     "_id": "user_admin",
     "username": "admin",
-    "password_hash": "$2b$12$IB.ryT.qp0qP1rVsQv1hv.Oyg0REGVamNGOuXQi.UcAyBlW3r6sjy",
+    "password_hash": "$2b$12$LLe6K3zefZ3RGp3y5XM3nOcgRVjAf7CUrCRnvXDx1BAyJw4DIb0te",
     "email": "admin@jim.edu",
     "role": "Admin",
     "name": "JIM System Admin",
-    "created_at": "2026-06-11T12:11:07.349074"
+    "created_at": "2026-09-19T18:32:36.264051"
   },
   {
     "_id": "user_ad",
     "username": "ad_boys",
-    "password_hash": "$2b$12$QZN9suxJp5WfMPzMUVfECuKlGgc4znb4FM5QPJwSlkr1UlCc145kq",
+    "password_hash": "$2b$12$Y1eNEggrmhI1JSFVynFicOjTP4RF4GbcUbHY9Y2HL0A6AL1RYf/Uq",
     "email": "ad_boys@jim.edu",
     "role": "AD",
-    "name": "Mr. Darwin (AD Boys)",
-    "created_at": "2026-06-11T12:11:07.694335"
+    "name": "Ajay James",
+    "created_at": "2026-09-19T18:32:36.835495"
   },
   {
     "_id": "user_director",
     "username": "director",
-    "password_hash": "$2b$12$3KFkcDt8CfvtxnBWHaw7ZOKzbuWl1X3jZcvHRBpI5WsgUC./.UmUy",
+    "password_hash": "$2b$12$B59gI3aTsit21sEq2X5MHeKUNILR68GMRmeaVxlLSaWLk7lbQ/pUa",
     "email": "director@jim.edu",
     "role": "Director",
     "name": "Dr. Joseph (Director)",
-    "created_at": "2026-06-11T12:11:08.040196"
-  },
-  {
-    "_id": "user_ajay",
-    "username": "ajay",
-    "password_hash": "$2b$12$kzEyjyxzzUPOoJwZHUcqkeZowtaSsEfaD4Hv7o8O/QRFI2AEia0/6",
-    "role": "AD",
-    "email": "hr@froniterwox.in",
-    "name": "Mr. Ajay James ",
-    "created_at": "2026-06-11T13:38:34.357187"
+    "created_at": "2026-09-19T18:32:37.235621"
   }
 ]

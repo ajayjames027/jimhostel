@@ -60,6 +60,8 @@ const Login = () => {
         navigate('/ad');
       } else if (result.user.role === 'Director') {
         navigate('/director');
+      } else if (result.user.role === 'Student') {
+        navigate('/student');
       }
     } else {
       showToast(result.error, 'error');
@@ -94,7 +96,10 @@ const Login = () => {
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Username */}
             <div>
-              <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Username</label>
+              <div className="flex justify-between items-end mb-2">
+                 <label className="block text-xs font-bold text-gray-500 uppercase">Username</label>
+                 <span className="text-[10px] font-bold text-blue-500 bg-blue-50 px-2 py-0.5 rounded">Students: Login as room_firstname (e.g. A1_Darwin)</span>
+              </div>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                   <User className="w-4 h-4" />

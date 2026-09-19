@@ -27,8 +27,12 @@ import DefaultersList from './pages/Director/DefaultersList';
 import Reports from './pages/Director/Reports';
 
 // Shared Pages
+import StudentDashboard from './pages/Student/StudentDashboard';
 import StudentProfile from './pages/Shared/StudentProfile';
 import LateEntryRegister from './pages/Shared/LateEntryRegister';
+import LeaveManagement from './pages/Shared/LeaveManagement';
+import MessPoll from './pages/AD/MessPoll';
+import MaintenanceRegistry from './pages/AD/MaintenanceRegistry';
 
 // Guard for protected routes checking roles
 const RoleGuard = ({ allowedRoles, children }) => {
@@ -51,6 +55,7 @@ const RoleGuard = ({ allowedRoles, children }) => {
     if (user.role === 'Admin') return <Navigate to="/admin" replace />;
     if (user.role === 'AD') return <Navigate to="/ad" replace />;
     if (user.role === 'Director') return <Navigate to="/director" replace />;
+    if (user.role === 'Student') return <Navigate to="/student" replace />;
     return <Navigate to="/login" replace />;
   }
 
@@ -76,6 +81,7 @@ const RootRedirect = () => {
   if (user.role === 'Admin') return <Navigate to="/admin" replace />;
   if (user.role === 'AD') return <Navigate to="/ad" replace />;
   if (user.role === 'Director') return <Navigate to="/director" replace />;
+  if (user.role === 'Student') return <Navigate to="/student" replace />;
   
   return <Navigate to="/login" replace />;
 };
@@ -143,6 +149,16 @@ function App() {
                   <AttendanceHistory />
                 </RoleGuard>
               } />
+              <Route path="mess-poll" element={
+                <RoleGuard allowedRoles={['AD', 'Admin']}>
+                  <MessPoll />
+                </RoleGuard>
+              } />
+              <Route path="maintenance" element={
+                <RoleGuard allowedRoles={['AD', 'Admin', 'Director']}>
+                  <MaintenanceRegistry />
+                </RoleGuard>
+              } />
 
               {/* Director Scope */}
               <Route path="director" element={
@@ -161,6 +177,13 @@ function App() {
                 </RoleGuard>
               } />
 
+              {/* Student Scope */}
+              <Route path="student" element={
+                <RoleGuard allowedRoles={['Student']}>
+                  <StudentDashboard />
+                </RoleGuard>
+              } />
+
               {/* Shared Scope (All logged in users) */}
               <Route path="students/:id" element={
                 <RoleGuard allowedRoles={['Admin', 'AD', 'Director']}>
@@ -170,6 +193,11 @@ function App() {
               <Route path="late-entry" element={
                 <RoleGuard allowedRoles={['AD']}>
                   <LateEntryRegister />
+                </RoleGuard>
+              } />
+              <Route path="leave-management" element={
+                <RoleGuard allowedRoles={['Admin', 'AD', 'Director']}>
+                  <LeaveManagement />
                 </RoleGuard>
               } />
             </Route>

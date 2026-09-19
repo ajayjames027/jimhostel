@@ -3,8 +3,8 @@
     "_id": "A1",
     "block": "Toulouse Arena",
     "floor": 1,
-    "capacity": 7,
-    "occupied": 7,
+    "capacity": 6,
+    "occupied": 6,
     "available_beds": 0
   },
   {
@@ -83,24 +83,32 @@
     "_id": "B5",
     "block": "Toulouse Arena",
     "floor": 2,
-    "capacity": 8,
-    "occupied": 7,
-    "available_beds": 1
+    "capacity": 4,
+    "occupied": 4,
+    "available_beds": 0
   },
   {
     "_id": "B6",
     "block": "Toulouse Arena",
     "floor": 2,
-    "capacity": 6,
-    "occupied": 4,
-    "available_beds": 2
+    "capacity": 5,
+    "occupied": 5,
+    "available_beds": 0
+  },
+  {
+    "_id": "B7",
+    "block": "Toulouse Arena",
+    "floor": 2,
+    "capacity": 8,
+    "occupied": 8,
+    "available_beds": 0
   },
   {
     "_id": "B8",
     "block": "Toulouse Arena",
     "floor": 2,
-    "capacity": 6,
+    "capacity": 5,
     "occupied": 5,
-    "available_beds": 1
+    "available_beds": 0
   }
 ]

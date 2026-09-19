@@ -1,1 +1,29 @@
-[]
+[
+  {
+    "_id": "leave_notif_leave_JIM2620002_1789825839",
+    "student_id": "JIM2620002",
+    "title": "Leave Approved",
+    "message": "Leave from 2026-09-12 to 2026-09-13 approved by Director.",
+    "type": "SMS/Email",
+    "status": "Unread",
+    "timestamp": "2026-09-19T19:31:34.590233"
+  },
+  {
+    "_id": "leave_notif_leave_JIM2620002_1789826540",
+    "student_id": "JIM2620002",
+    "title": "Leave Approved",
+    "message": "Leave from 2026-09-21 to 2026-09-22 approved by Director.",
+    "type": "SMS/Email",
+    "status": "Unread",
+    "timestamp": "2026-09-19T19:32:31.966314"
+  },
+  {
+    "_id": "leave_notif_leave_B2_nivone_1789827307",
+    "student_id": "B2_nivone",
+    "title": "Leave Approved",
+    "message": "Leave from 2026-09-20 to 2026-09-20 approved by Director.",
+    "type": "SMS/Email",
+    "status": "Unread",
+    "timestamp": "2026-09-19T19:45:35.277664"
+  }
+]

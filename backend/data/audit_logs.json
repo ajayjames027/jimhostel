@@ -1,1 +1,130 @@
-[]
+[
+  {
+    "_id": "1789822076.833443",
+    "user_id": "user_ad",
+    "username": "ad_boys",
+    "action": "Login",
+    "details": "User successfully logged into the system",
+    "timestamp": "2026-09-19T18:17:56.833770"
+  },
+  {
+    "_id": "1789824313.762079",
+    "user_id": "user_ad",
+    "username": "ad_boys",
+    "action": "Login",
+    "details": "User successfully logged into the system",
+    "timestamp": "2026-09-19T18:55:13.762546"
+  },
+  {
+    "_id": "1789825374.337888",
+    "user_id": "user_ad",
+    "username": "ad_boys",
+    "action": "Login",
+    "details": "User successfully logged into the system",
+    "timestamp": "2026-09-19T19:12:54.338075"
+  },
+  {
+    "_id": "1789825498.847223",
+    "user_id": "user_ad",
+    "username": "ad_boys",
+    "action": "Mark Attendance",
+    "details": "Marked morning attendance for Room B2 on 2026-09-19",
+    "timestamp": "2026-09-19T19:14:58.847238"
+  },
+  {
+    "_id": "1789825839.227115",
+    "user_id": "JIM2620002",
+    "username": "JIM2620002",
+    "action": "Submit Leave",
+    "details": "Submitted leave request for NIVONE PRABAKARAN",
+    "timestamp": "2026-09-19T19:20:39.227127"
+  },
+  {
+    "_id": "1789825908.840433",
+    "user_id": "JIM2620002",
+    "username": "JIM2620002",
+    "action": "Submit Leave",
+    "details": "Submitted leave request for NIVONE PRABAKARAN",
+    "timestamp": "2026-09-19T19:21:48.840833"
+  },
+  {
+    "_id": "1789826286.551303",
+    "user_id": "JIM2620002",
+    "username": "JIM2620002",
+    "action": "Submit Leave",
+    "details": "Submitted leave request for NIVONE PRABAKARAN",
+    "timestamp": "2026-09-19T19:28:06.551693"
+  },
+  {
+    "_id": "1789826494.592876",
+    "user_id": "user_ad",
+    "username": "ad_boys",
+    "action": "Leave Approved",
+    "details": "Set leave status for student ID JIM2620002 to Approved",
+    "timestamp": "2026-09-19T19:31:34.593240"
+  },
+  {
+    "_id": "1789826540.71273",
+    "user_id": "JIM2620002",
+    "username": "JIM2620002",
+    "action": "Submit Leave",
+    "details": "Submitted leave request for NIVONE PRABAKARAN",
+    "timestamp": "2026-09-19T19:32:20.712746"
+  },
+  {
+    "_id": "1789826551.968675",
+    "user_id": "user_ad",
+    "username": "ad_boys",
+    "action": "Leave Approved",
+    "details": "Set leave status for student ID JIM2620002 to Approved",
+    "timestamp": "2026-09-19T19:32:31.968699"
+  },
+  {
+    "_id": "1789826566.43087",
+    "user_id": "user_ad",
+    "username": "ad_boys",
+    "action": "Mark Attendance",
+    "details": "Marked morning attendance for Room B2 on 2026-09-21",
+    "timestamp": "2026-09-19T19:32:46.430884"
+  },
+  {
+    "_id": "1789827307.708931",
+    "user_id": "B2_nivone",
+    "username": "B2_nivone",
+    "action": "Submit Leave",
+    "details": "Submitted leave request for NIVONE PRABAKARAN A",
+    "timestamp": "2026-09-19T19:45:07.709368"
+  },
+  {
+    "_id": "1789827335.280263",
+    "user_id": "user_ad",
+    "username": "ad_boys",
+    "action": "Leave Approved",
+    "details": "Set leave status for student ID B2_nivone to Approved",
+    "timestamp": "2026-09-19T19:45:35.280284"
+  },
+  {
+    "_id": "1789827354.179939",
+    "user_id": "user_ad",
+    "username": "ad_boys",
+    "action": "Mark Attendance",
+    "details": "Marked morning attendance for Room B2 on 2026-09-20",
+    "timestamp": "2026-09-19T19:45:54.179951"
+  },
+  {
+    "_id": "1789828004.519549",
+    "user_id": "user_admin",
+    "username": "admin",
+    "action": "Login",
+    "details": "User successfully logged into the system",
+    "timestamp": "2026-09-19T19:56:44.519846"
+  },
+  {
+    "_id": "1789828044.612143",
+    "user_id": "user_admin",
+    "username": "admin",
+    "action": "Update User",
+    "details": "Updated user account: ad_boys",
+    "timestamp": "2026-09-19T19:57:24.612184"
+  }
+]

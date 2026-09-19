@@ -1,1 +1,200 @@
-[]
+[
+  {
+    "_id": "2026-09-19_morning_JIM2620002",
+    "date": "2026-09-19",
+    "type": "morning",
+    "room_number": "B2",
+    "student_id": "JIM2620002",
+    "status": "Present",
+    "remarks": "",
+    "marked_by": "Mr. Darwin (AD Boys)",
+    "timestamp": "2026-09-19T00:44:58"
+  },
+  {
+    "_id": "2026-09-19_morning_JIM2620007",
+    "date": "2026-09-19",
+    "type": "morning",
+    "room_number": "B2",
+    "student_id": "JIM2620007",
+    "status": "Present",
+    "remarks": "",
+    "marked_by": "Mr. Darwin (AD Boys)",
+    "timestamp": "2026-09-19T00:44:58"
+  },
+  {
+    "_id": "2026-09-19_morning_JIM2620013",
+    "date": "2026-09-19",
+    "type": "morning",
+    "room_number": "B2",
+    "student_id": "JIM2620013",
+    "status": "Present",
+    "remarks": "",
+    "marked_by": "Mr. Darwin (AD Boys)",
+    "timestamp": "2026-09-19T00:44:58"
+  },
+  {
+    "_id": "2026-09-19_morning_JIM2620016",
+    "date": "2026-09-19",
+    "type": "morning",
+    "room_number": "B2",
+    "student_id": "JIM2620016",
+    "status": "Present",
+    "remarks": "",
+    "marked_by": "Mr. Darwin (AD Boys)",
+    "timestamp": "2026-09-19T00:44:58"
+  },
+  {
+    "_id": "2026-09-19_morning_JIM2620020",
+    "date": "2026-09-19",
+    "type": "morning",
+    "room_number": "B2",
+    "student_id": "JIM2620020",
+    "status": "Present",
+    "remarks": "",
+    "marked_by": "Mr. Darwin (AD Boys)",
+    "timestamp": "2026-09-19T00:44:58"
+  },
+  {
+    "_id": "2026-09-19_morning_JIM2620024",
+    "date": "2026-09-19",
+    "type": "morning",
+    "room_number": "B2",
+    "student_id": "JIM2620024",
+    "status": "Present",
+    "remarks": "",
+    "marked_by": "Mr. Darwin (AD Boys)",
+    "timestamp": "2026-09-19T00:44:58"
+  },
+  {
+    "_id": "2026-09-21_morning_JIM2620002",
+    "date": "2026-09-21",
+    "type": "morning",
+    "room_number": "B2",
+    "student_id": "JIM2620002",
+    "status": "Absent",
+    "remarks": "On Approved Leave",
+    "marked_by": "Mr. Darwin (AD Boys)",
+    "timestamp": "2026-09-21T01:02:46"
+  },
+  {
+    "_id": "2026-09-21_morning_JIM2620007",
+    "date": "2026-09-21",
+    "type": "morning",
+    "room_number": "B2",
+    "student_id": "JIM2620007",
+    "status": "Present",
+    "remarks": "",
+    "marked_by": "Mr. Darwin (AD Boys)",
+    "timestamp": "2026-09-21T01:02:46"
+  },
+  {
+    "_id": "2026-09-21_morning_JIM2620013",
+    "date": "2026-09-21",
+    "type": "morning",
+    "room_number": "B2",
+    "student_id": "JIM2620013",
+    "status": "Present",
+    "remarks": "",
+    "marked_by": "Mr. Darwin (AD Boys)",
+    "timestamp": "2026-09-21T01:02:46"
+  },
+  {
+    "_id": "2026-09-21_morning_JIM2620016",
+    "date": "2026-09-21",
+    "type": "morning",
+    "room_number": "B2",
+    "student_id": "JIM2620016",
+    "status": "Present",
+    "remarks": "",
+    "marked_by": "Mr. Darwin (AD Boys)",
+    "timestamp": "2026-09-21T01:02:46"
+  },
+  {
+    "_id": "2026-09-21_morning_JIM2620020",
+    "date": "2026-09-21",
+    "type": "morning",
+    "room_number": "B2",
+    "student_id": "JIM2620020",
+    "status": "Present",
+    "remarks": "",
+    "marked_by": "Mr. Darwin (AD Boys)",
+    "timestamp": "2026-09-21T01:02:46"
+  },
+  {
+    "_id": "2026-09-21_morning_JIM2620024",
+    "date": "2026-09-21",
+    "type": "morning",
+    "room_number": "B2",
+    "student_id": "JIM2620024",
+    "status": "Present",
+    "remarks": "",
+    "marked_by": "Mr. Darwin (AD Boys)",
+    "timestamp": "2026-09-21T01:02:46"
+  },
+  {
+    "_id": "2026-09-20_morning_B2_nivone",
+    "date": "2026-09-20",
+    "type": "morning",
+    "room_number": "B2",
+    "student_id": "B2_nivone",
+    "status": "Absent",
+    "remarks": "On Approved Leave",
+    "marked_by": "Mr. Darwin (AD Boys)",
+    "timestamp": "2026-09-20T01:15:53"
+  },
+  {
+    "_id": "2026-09-20_morning_B2_praveen",
+    "date": "2026-09-20",
+    "type": "morning",
+    "room_number": "B2",
+    "student_id": "B2_praveen",
+    "status": "Present",
+    "remarks": "",
+    "marked_by": "Mr. Darwin (AD Boys)",
+    "timestamp": "2026-09-20T01:15:53"
+  },
+  {
+    "_id": "2026-09-20_morning_B2_sujith",
+    "date": "2026-09-20",
+    "type": "morning",
+    "room_number": "B2",
+    "student_id": "B2_sujith",
+    "status": "Present",
+    "remarks": "",
+    "marked_by": "Mr. Darwin (AD Boys)",
+    "timestamp": "2026-09-20T01:15:53"
+  },
+  {
+    "_id": "2026-09-20_morning_B2_estan",
+    "date": "2026-09-20",
+    "type": "morning",
+    "room_number": "B2",
+    "student_id": "B2_estan",
+    "status": "Present",
+    "remarks": "",
+    "marked_by": "Mr. Darwin (AD Boys)",
+    "timestamp": "2026-09-20T01:15:53"
+  },
+  {
+    "_id": "2026-09-20_morning_B2_gokul",
+    "date": "2026-09-20",
+    "type": "morning",
+    "room_number": "B2",
+    "student_id": "B2_gokul",
+    "status": "Present",
+    "remarks": "",
+    "marked_by": "Mr. Darwin (AD Boys)",
+    "timestamp": "2026-09-20T01:15:53"
+  },
+  {
+    "_id": "2026-09-20_morning_B2_thomas",
+    "date": "2026-09-20",
+    "type": "morning",
+    "room_number": "B2",
+    "student_id": "B2_thomas",
+    "status": "Present",
+    "remarks": "",
+    "marked_by": "Mr. Darwin (AD Boys)",
+    "timestamp": "2026-09-20T01:15:53"
+  }
+]

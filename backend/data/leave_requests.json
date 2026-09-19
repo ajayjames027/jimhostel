@@ -1,1 +1,52 @@
-[]
+[
+  {
+    "_id": "leave_JIM2620002_1789825839",
+    "student_id": "JIM2620002",
+    "leave_from": "2026-09-12",
+    "leave_to": "2026-09-13",
+    "reason": "aa",
+    "status": "Approved",
+    "approved_by": "Mr. Darwin (AD Boys)",
+    "created_at": "2026-09-19T19:20:39.225402"
+  },
+  {
+    "_id": "leave_JIM2620002_1789825908",
+    "student_id": "JIM2620002",
+    "leave_from": "2026-09-20",
+    "leave_to": "0026-09-22",
+    "reason": "ws",
+    "status": "Pending",
+    "approved_by": "",
+    "created_at": "2026-09-19T19:21:48.836933"
+  },
+  {
+    "_id": "leave_JIM2620002_1789826286",
+    "student_id": "JIM2620002",
+    "leave_from": "2026-09-20",
+    "leave_to": "2026-09-21",
+    "reason": "home",
+    "status": "Pending",
+    "approved_by": "",
+    "created_at": "2026-09-19T19:28:06.548899"
+  },
+  {
+    "_id": "leave_JIM2620002_1789826540",
+    "student_id": "JIM2620002",
+    "leave_from": "2026-09-21",
+    "leave_to": "2026-09-22",
+    "reason": "lk",
+    "status": "Approved",
+    "approved_by": "Mr. Darwin (AD Boys)",
+    "created_at": "2026-09-19T19:32:20.709531"
+  },
+  {
+    "_id": "leave_B2_nivone_1789827307",
+    "student_id": "B2_nivone",
+    "leave_from": "2026-09-20",
+    "leave_to": "2026-09-20",
+    "reason": "dd",
+    "status": "Approved",
+    "approved_by": "Mr. Darwin (AD Boys)",
+    "created_at": "2026-09-19T19:45:07.706734"
+  }
+]

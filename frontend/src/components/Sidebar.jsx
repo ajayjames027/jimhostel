@@ -14,7 +14,10 @@ import {
   LogOut,
   X,
   FileText,
-  BookOpen
+  BookOpen,
+  Calendar,
+  Coffee,
+  Wrench
 } from 'lucide-react';
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
@@ -31,12 +34,16 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     { to: '/mark-attendance', label: 'Mark Attendance', icon: UserCheck },
     { to: '/attendance-history', label: 'Attendance History', icon: History },
     { to: '/late-entry', label: 'Late Entry Register', icon: BookOpen },
+    { to: '/leave-management', label: 'Leave Management', icon: Calendar },
+    { to: '/mess-poll', label: 'Mess Food Poll', icon: Coffee },
+    { to: '/maintenance', label: 'Maintenance Issues', icon: Wrench },
     { to: '/reports', label: 'Download Reports', icon: FileSpreadsheet },
   ];
 
   const directorLinks = [
     { to: '/director', label: 'Director Dashboard', icon: LayoutDashboard },
     { to: '/defaulters', label: 'Defaulters List', icon: AlertTriangle },
+    { to: '/leave-management', label: 'Leave Management', icon: Calendar },
     { to: '/reports', label: 'Download Reports', icon: FileSpreadsheet },
   ];
 
@@ -45,13 +52,21 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     { to: '/manage-students', label: 'Manage Students', icon: Users },
     { to: '/manage-rooms', label: 'Manage Rooms', icon: Home },
     { to: '/manage-accounts', label: 'User Accounts', icon: UserPlus },
+    { to: '/leave-management', label: 'Leave Management', icon: Calendar },
+    { to: '/mess-poll', label: 'Mess Food Poll', icon: Coffee },
+    { to: '/maintenance', label: 'Maintenance Issues', icon: Wrench },
     { to: '/system-logs', label: 'System Logs', icon: FileText },
+  ];
+
+  const studentLinks = [
+    { to: '/student', label: 'My Dashboard', icon: LayoutDashboard }
   ];
 
   let links = [];
   if (user?.role === 'AD') links = adLinks;
   else if (user?.role === 'Director') links = directorLinks;
   else if (user?.role === 'Admin') links = adminLinks;
+  else if (user?.role === 'Student') links = studentLinks;
 
   const activeClass = "flex items-center gap-3 px-4 py-3 rounded-xl bg-blue-50 text-primary font-semibold transition-all duration-200 border-l-4 border-primary shadow-sm";
   const inactiveClass = "flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all duration-200";
@@ -110,7 +125,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
               <NavLink
                 key={link.to}
                 to={link.to}
-                end={link.to === '/ad' || link.to === '/director' || link.to === '/admin'}
+                end={link.to === '/ad' || link.to === '/director' || link.to === '/admin' || link.to === '/student'}
                 onClick={() => {
                   if (window.innerWidth < 768) toggleSidebar();
                 }}

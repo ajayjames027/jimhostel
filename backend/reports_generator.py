@@ -78,7 +78,19 @@ def generate_pdf_report(report_type, data):
         story.append(Paragraph("No records found for the selected criteria.", styles['Normal']))
     else:
         # Define table headers based on report type
-        if report_type == 'daily':
+        
+        if report_type == 'students':
+            headers = ["Reg Number", "Name", "Room", "Course"]
+            col_widths = [1.2*inch, 2.5*inch, 1.0*inch, 2.0*inch]
+            rows = [[Paragraph(h, header_style) for h in headers]]
+            for item in data:
+                rows.append([
+                    Paragraph(item.get('register_number', ''), body_style),
+                    Paragraph(item.get('name', ''), body_style),
+                    Paragraph(item.get('room_number', ''), body_style),
+                    Paragraph(item.get('course', ''), body_style)
+                ])
+        elif report_type == 'daily':
             headers = ["Date", "Student Name", "Room", "Status", "Marked By"]
             col_widths = [1.2*inch, 2.3*inch, 0.7*inch, 1.0*inch, 2.2*inch]
             rows = [[Paragraph(h, header_style) for h in headers]]
@@ -126,6 +138,33 @@ def generate_pdf_report(report_type, data):
                     Paragraph(str(item.get('capacity', '')), body_style),
                     Paragraph(str(item.get('occupied', '')), body_style),
                     Paragraph(str(item.get('available_beds', '')), body_style)
+                ])
+        elif report_type == 'food_poll':
+            b_count = sum(1 for item in data if item.get('breakfast'))
+            l_count = sum(1 for item in data if item.get('lunch'))
+            d_count = sum(1 for item in data if item.get('dinner'))
+            
+            poll_date = data[0].get('poll_date', '') if data else ""
+            date_str = f"Polling Date: {poll_date}<br/>" if poll_date else ""
+            
+            summary_text = f"{date_str}<b>TOTAL CONSOLIDATION:  Breakfast: {b_count} | Lunch: {l_count} | Dinner: {d_count}</b>"
+            story.append(Paragraph(summary_text, body_style))
+            story.append(Spacer(1, 10))
+
+            headers = ["Student Name", "Room Number", "Group", "Breakfast", "Lunch", "Dinner"]
+            col_widths = [2.0*inch, 1.2*inch, 1.0*inch, 1.0*inch, 1.0*inch, 1.0*inch]
+            rows = [[Paragraph(h, header_style) for h in headers]]
+            for item in data:
+                b = "Yes" if item.get('breakfast') else "No"
+                l = "Yes" if item.get('lunch') else "No"
+                d = "Yes" if item.get('dinner') else "No"
+                rows.append([
+                    Paragraph(item.get('name', ''), body_style),
+                    Paragraph(item.get('room_number', ''), body_style),
+                    Paragraph(item.get('class_name', ''), body_style),
+                    Paragraph(b, body_style),
+                    Paragraph(l, body_style),
+                    Paragraph(d, body_style)
                 ])
         else:
             headers = ["Info"]
@@ -199,7 +238,19 @@ def generate_excel_report(report_type, data):
         ws.merge_cells('A4:F4')
     else:
         # Define headers
-        if report_type == 'daily':
+        
+        if report_type == 'students':
+            headers = ["Reg Number", "Name", "Room", "Course"]
+            col_widths = [1.2*inch, 2.5*inch, 1.0*inch, 2.0*inch]
+            rows = [[Paragraph(h, header_style) for h in headers]]
+            for item in data:
+                rows.append([
+                    Paragraph(item.get('register_number', ''), body_style),
+                    Paragraph(item.get('name', ''), body_style),
+                    Paragraph(item.get('room_number', ''), body_style),
+                    Paragraph(item.get('course', ''), body_style)
+                ])
+        elif report_type == 'daily':
             headers = ["Date", "Student Name", "Room Number", "Attendance Status", "Marked By"]
             ws.append(headers)
             for item in data:

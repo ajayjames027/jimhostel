@@ -42,6 +42,15 @@ def token_required(f):
             db = get_db()
             current_user = db["users"].find_one({"_id": data["user_id"]})
             if not current_user:
+                student = db["students"].find_one({"_id": data["user_id"]})
+                if student:
+                    current_user = {
+                        "_id": student["_id"],
+                        "username": student["_id"],
+                        "role": "Student",
+                        "name": student["name"]
+                    }
+            if not current_user:
                 return jsonify({'message': 'Invalid token, user not found!'}), 401
         except jwt.ExpiredSignatureError:
             return jsonify({'message': 'Token has expired!'}), 401
@@ -61,6 +70,212 @@ def roles_required(*roles):
         decorator.__name__ = f.__name__
         return decorator
     return wrapper
+
+data_seed = """A1	II MBA	DARWIN INFANT RAAJ P
+A1	II MBA	JASON HANSEL SAMUEL J
+A1	II MBA	SANJEEV KUMAR
+A1	II MBA	VISHWANATHAN I
+A1	II MBA	ABISHAK RAJ S
+A1	II MBA	PRAVEENRAJ R
+A2	II MBA	DICKSON D
+A2	II MBA	DANIEL A
+A2	II MBA	NITHISH M
+A2	II MBA	JANICK ANTO
+A2	II MBA	ANTO JEFFIN J
+A2	II MBA	ARMEL
+A3	II MBA	MILAN SHIJOE J
+A3	II MBA	AKILAN SEBASTIN V
+A3	II MBA	RENO SINGAR X
+A3	II MBA	VENKATESHWAR
+A3	II MBA	HARI SANKARAN R
+A3	II MBA	VALAN J
+A4	II MBA	YUVARAJAN R A
+A4	II MBA	RUBAN A
+A4	II MBA	SUNIL SANGEETH J
+A4	II MBA	ROBIN J
+A4	II MBA	GODWINGINUS A
+A4	II MBA	ASWIN R
+A5	II MBA	JAVANSKER J
+A5	II MBA	TENNIS DASS M
+A5	II MBA	GABRIEL THANGAM SEBASTIAN
+A5	II MBA	VELANGANNI SELVARAJ S
+A5	II MBA	ANTONY GNANA AAKASH A
+A5	II MBA	JEGAN A
+A6	II MBA	INFANT TOM F
+A6	II MBA	RUBANRAJ G
+A6	II MBA	ROSHAN J
+A6	II MBA	REJI JEGAN V
+A6	II MBA	JINOSOBAN M
+A6	II MBA	SUDHARSAN REDDY R
+B1	II MBA	KISHORE KUMAR V
+B1	II MBA	KEVIN JOSHVA S
+B1	II MBA	ABITHEJ P
+B1	II MBA	GAJA BALAJI
+B1	II MBA	SUJET RAJA S
+B1	II MBA	PRAVIN PON
+B2	I MBA	NIVONE PRABAKARAN A
+B2	I MBA	PRAVEEN KUMAR S
+B2	I MBA	SUJITH J
+B2	I MBA	ESTAN J
+B2	I MBA	GOKUL V
+B2	I MBA	THOMAS DANIEL S
+B3	I MBA	HARISH RAGAVENDRA G
+B3	I MBA	ROSHAN J
+B3	I MBA	SARON TONI SELVAN U
+B3	I MBA	M NAVEEN PRASAD
+B3	I MBA	PREMKALYAAN V
+B3	I MBA	ALEX A
+B4	I MBA	GOPI S
+B4	I MBA	S ASWIN
+B4	I MBA	ALEXIN PIO S
+B4	I MBA	ANTO BRIGHTEN J
+B4	I MBA	Engine Britto
+B4	I MBA	Tharun
+B4	I MBA	SUBASHCHANDRABOSE S
+B4	I MBA	LEONI RAJA SINGH D
+B5	II MBA	JANARIUS
+B5	II MBA	EDISON
+B5	II MBA	JACK FERNANDEZ
+B5	I MBA	AADHAVAN
+B6	I MBA	ANTO ABINESH V
+B6	I MBA	JOE CANICE VALAN E
+B6	I MBA	MOVIN RAJ I
+B6	I MBA	Danial
+B6	I MBA	Sarath
+B7	I MBA	DEEPAK XAVIER S
+B7	I MBA	JONES HARISH P
+B7	I MBA	V R JUDE MICHAEL
+B7	I MBA	LEOMARAN P
+B7	I MBA	HARIPRAKASH B
+B7	I MBA	Dominic Seril
+B7	I MBA	John Joemics
+B7	I MBA	Naresh
+B8	I MBA	DANIAL J
+B8	I MBA	JAI BALAJEE G
+B8	I MBA	JIFFIN JUDE A
+B8	I MBA	ALVIS JOY A
+B8	I MBA	Ruban"""
+
+@app.route('/api/seed-now', methods=['GET'])
+def seed_now():
+    db = get_db()
+    db["students"].delete_many({})
+    db["rooms"].delete_many({})
+    
+    lines = data_seed.strip().split('\n')
+    room_counts = {}
+    students = []
+    
+    for idx, line in enumerate(lines):
+        if not line.strip(): continue
+        parts = line.split('\t')
+        if len(parts) < 3: continue
+        
+        room = parts[0].strip()
+        course = parts[1].strip()
+        name = parts[2].strip()
+        
+        room_counts[room] = room_counts.get(room, 0) + 1
+        
+        students.append({
+            "_id": f"{room}_{name.split()[0].lower()}",
+            "register_number": f"REG_{room}_{idx:03d}",
+            "name": name,
+            "course": course,
+            "year": "2nd Year" if "II" in course else "1st Year",
+            "department": "Business Administration",
+            "room_number": room,
+            "mobile": "9000000000",
+            "parent_mobile": "9999999999",
+            "email": f"{name.split()[0].lower()}@jim.edu.in",
+            "photo": "",
+            "hostel_name": "JIM Boys Hostel",
+            "block": "Toulouse Arena",
+            "status": "Active",
+            "attendance_percentage": 100.0,
+            "last_attendance": "None"
+        })
+        
+    for s in students:
+        db["students"].insert_one(s)
+        
+    room_docs = []
+    for room, count in room_counts.items():
+        room_docs.append({
+            "_id": room,
+            "block": "Toulouse Arena",
+            "floor": 1 if room.startswith('A') else 2,
+            "capacity": count,
+            "occupied": count,
+            "available_beds": 0
+        })
+        
+    for r in room_docs:
+        db["rooms"].insert_one(r)
+    return jsonify({"message": f"Seeded {len(students)} students and {len(room_docs)} rooms!"})
+
+@app.route('/api/generate-manual', methods=['GET'])
+def generate_manual_endpoint():
+    db = get_db()
+    from reportlab.lib.pagesizes import letter
+    from reportlab.lib import colors
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    
+    doc = SimpleDocTemplate("Student_Portal_Manual.pdf", pagesize=letter)
+    styles = getSampleStyleSheet()
+    
+    title_style = ParagraphStyle('MainTitle', parent=styles['Heading1'], fontName='Helvetica-Bold', fontSize=22, textColor=colors.HexColor('#1E3A8A'), alignment=1, spaceAfter=20)
+    sub_title_style = ParagraphStyle('SubTitle', parent=styles['Heading2'], fontName='Helvetica-Bold', fontSize=14, textColor=colors.HexColor('#2563EB'), spaceBefore=15, spaceAfter=10)
+    body_style = ParagraphStyle('Body', parent=styles['Normal'], fontName='Helvetica', fontSize=11, leading=16, spaceAfter=10)
+    bold_style = ParagraphStyle('BoldBody', parent=styles['Normal'], fontName='Helvetica-Bold', fontSize=11, leading=16, spaceAfter=10)
+    
+    story = []
+    
+    story.append(Paragraph("JIM Boys Hostel - Student Portal Manual", title_style))
+    story.append(Paragraph("Welcome to the new digital management system for JIM Boys Hostel! This platform simplifies your daily interactions.", body_style))
+    
+    story.append(Paragraph("1. How to Login", sub_title_style))
+    story.append(Paragraph("<b>URL:</b> Access the portal link shared by your AD on your phone.", body_style))
+    story.append(Paragraph("<b>Username Format:</b> roomnumber_firstname (Use Lowercase)", body_style))
+    story.append(Paragraph("<b>Default Global Password:</b> jim123", bold_style))
+    
+    story.append(Paragraph("2. Mess Food Polling (Important)", sub_title_style))
+    story.append(Paragraph("For weekends or long holidays, the AD will launch a 'Multi-Day Food Poll'. Tap the meal icons and submit to lock in your count.", body_style))
+    
+    story.append(Paragraph("3. Applying for Leave & Maintenance", sub_title_style))
+    story.append(Paragraph("- You can apply for leaves directly triggering a WhatsApp automation.", body_style))
+    story.append(Paragraph("- You can lodge maintenance complaints securely.", body_style))
+    
+    story.append(Spacer(1, 20))
+    story.append(Paragraph("APPENDIX: Complete Username Roster", title_style))
+    
+    students = list(db["students"].find().sort([("room_number", 1), ("name", 1)]))
+    table_data = [["Room", "Student Name", "Official Log-In Username"]]
+    
+    for s in students:
+        room = str(s.get('room_number', ''))
+        name = str(s.get('name', ''))
+        first_name = name.split()[0].lower() if name else ""
+        username = f"{room.lower()}_{first_name}"
+        table_data.append([room, name, username])
+    
+    t = Table(table_data, colWidths=[60, 200, 160])
+    t.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#1E3A8A')),
+        ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
+        ('ALIGN', (0,0), (-1,-1), 'LEFT'),
+        ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0,0), (-1,0), 10),
+        ('BACKGROUND', (0,1), (-1,-1), colors.HexColor('#F8FAFC')),
+        ('GRID', (0,0), (-1,-1), 1, colors.HexColor('#E2E8F0')),
+        ('FONTNAME', (0,1), (-1,-1), 'Helvetica'),
+    ]))
+    
+    story.append(t)
+    doc.build(story)
+    
+    return jsonify({"message": "PDF Created"})
 
 def log_action(user_id, username, action, details):
     db = get_db()
@@ -138,8 +353,110 @@ def update_student_attendance_percentage(student_id):
         }}
     )
 
+
+@app.route('/api/maintenance', methods=['GET', 'POST'])
+@token_required
+def handle_maintenance(current_user):
+    db = get_db()
+    if request.method == 'POST':
+        data = request.json
+        doc = {
+            "_id": str(datetime.datetime.utcnow().timestamp()),
+            "student_id": data.get("student_id"),
+            "name": current_user.get("name"),
+            "room_number": data.get("room_number"),
+            "issue": data.get("issue"),
+            "description": data.get("description"),
+            "photo_data": data.get("photo_data", ""),
+            "status": "Pending",
+            "timestamp": datetime.datetime.utcnow().isoformat()
+        }
+        db["maintenance"].insert_one(doc)
+        return jsonify({"message": "Maintenance issue reported."})
+    else:
+        # GET
+        if current_user.get("role") in ["AD", "Admin", "Director"]:
+            issues = list(db["maintenance"].find().sort("timestamp", -1))
+        else:
+            issues = list(db["maintenance"].find({"student_id": current_user["_id"]}).sort("timestamp", -1))
+        return jsonify(issues)
+
+
+@app.route('/api/maintenance/<issue_id>', methods=['DELETE'])
+@token_required
+@roles_required('Admin')
+def delete_maintenance(current_user, issue_id):
+    db = get_db()
+    db["maintenance"].delete_one({"_id": issue_id})
+    return jsonify({"message": "Maintenance request deleted."})
+
+@app.route('/api/maintenance/<issue_id>', methods=['PUT'])
+@token_required
+def update_maintenance(current_user, issue_id):
+    if current_user.get("role") not in ["AD", "Admin", "Director"]:
+        return jsonify({"message": "Unauthorized"}), 403
+    db = get_db()
+    data = request.json
+    db["maintenance"].update_one({"_id": issue_id}, {"$set": {"status": data.get("status")}})
+    return jsonify({"message": "Status updated."})
+
+@app.route('/api/reports/food-poll/<date>', methods=['GET'])
+@token_required
+def download_food_poll_report(current_user, date):
+    db = get_db()
+    # Join with student to get names
+    students = list(db["students"].find())
+    stud_dict = {s["_id"]: s["name"] for s in students}
+    
+    poll_records = list(db["food_counts"].find({"date": date}))
+    data = []
+    for p in poll_records:
+        if not p.get('acknowledged', False):
+            continue
+        p["name"] = stud_dict.get(p["student_id"], "Unknown")
+        p["poll_date"] = date
+        data.append(p)
+        
+    data.sort(key=lambda x: (x.get('class_name',''), x.get('room_number','')))
+    pdf_bytes = generate_pdf_report("food_poll", data)
+    return send_file(io.BytesIO(pdf_bytes), mimetype='application/pdf', as_attachment=True, download_name=f'MessPoll_{date}.pdf')
+
+
+@app.route('/api/reports/students-export', methods=['GET'])
+@token_required
+def export_students(current_user):
+    db = get_db()
+    import io
+    from flask import send_file
+    format_type = request.args.get('format', 'pdf')
+    students = list(db["students"].find().sort([("room_number", 1), ("name", 1)]))
+    
+    if format_type == 'pdf':
+        pdf_bytes = generate_pdf_report("students", students)
+        return send_file(io.BytesIO(pdf_bytes), mimetype='application/pdf', as_attachment=True, download_name='StudentsReport.pdf')
+    else:
+        excel_bytes = generate_excel_report("students", students)
+        return send_file(io.BytesIO(excel_bytes), mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', as_attachment=True, download_name='StudentsReport.xlsx')
+
+@app.route('/api/reports/rooms-export', methods=['GET'])
+@token_required
+def export_rooms(current_user):
+    db = get_db()
+    import io
+    from flask import send_file
+    format_type = request.args.get('format', 'pdf')
+    rooms = list(db["rooms"].find().sort([("_id", 1)]))
+    
+    if format_type == 'pdf':
+        pdf_bytes = generate_pdf_report("occupancy", rooms)
+        return send_file(io.BytesIO(pdf_bytes), mimetype='application/pdf', as_attachment=True, download_name='RoomsReport.pdf')
+    else:
+        excel_bytes = generate_excel_report("occupancy", rooms)
+        return send_file(io.BytesIO(excel_bytes), mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', as_attachment=True, download_name='RoomsReport.xlsx')
+
 # =====================================================================
 # AUTH ROUTES
+
 # =====================================================================
 
 @app.route('/api/auth/login', methods=['POST'])
@@ -154,8 +471,42 @@ def login():
     db = get_db()
     user = db["users"].find_one({"username": username})
     
+    if not user:
+        student = None
+        if "_" in username:
+            try:
+                room, fname = username.split('_', 1)
+                students_in_room = list(db["students"].find({"room_number": {"$regex": f"^{room}$", "$options": "i"}}))
+                student = next((s for s in students_in_room if s['name'].split()[0].lower() == fname.lower()), None)
+            except Exception:
+                pass
+                
+        if not student:
+            student = db["students"].find_one({"_id": username})
+            
+        if student:
+            # For students, check if password matches 'jim123'
+            if password == "jim123":
+                token = jwt.encode({
+                    'user_id': student['_id'],
+                    'username': student['_id'],
+                    'role': 'Student',
+                    'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24)
+                }, app.config['JWT_SECRET'], algorithm="HS256")
+                
+                return jsonify({
+                    'token': token,
+                    'user': {
+                        'username': student['_id'],
+                        'role': 'Student',
+                        'name': student['name'],
+                        'email': student['email']
+                    }
+                })
+
     if not user or not bcrypt.checkpw(password.encode('utf-8'), user['password_hash'].encode('utf-8')):
         return jsonify({'message': 'Invalid username or password'}), 401
+    
         
     # Generate JWT Token
     token = jwt.encode({
@@ -615,7 +966,7 @@ def mark_attendance(current_user):
             "leave_to": {"$gte": date_str}
         })
         
-        final_status = "Leave" if on_leave else status
+        final_status = "Absent" if on_leave else status
         remark = remarks_data.get(s_id, "")
         if on_leave and not remark:
             remark = "On Approved Leave"
@@ -712,12 +1063,23 @@ def get_room_attendance(current_user, room_number):
     result = []
     for s in students:
         rec = record_map.get(s["_id"], {})
+        
+        # Check leave status
+        on_leave = db["leave_requests"].find_one({
+            "student_id": s["_id"],
+            "status": "Approved",
+            "leave_from": {"$lte": date_str},
+            "leave_to": {"$gte": date_str}
+        })
+        default_status = "Absent" if on_leave else "Present"
+        default_remark = "On Approved Leave" if on_leave else ""
+        
         result.append({
             "student_id": s["_id"],
             "name": s["name"],
             "register_number": s["register_number"],
-            "status": rec.get("status", "Present"), # Default check to Present
-            "remarks": rec.get("remarks", ""),
+            "status": rec.get("status", default_status),
+            "remarks": rec.get("remarks", default_remark),
             "has_record": "_id" in rec
         })
         
@@ -823,9 +1185,18 @@ def manage_leaves(current_user):
         log_action(current_user['_id'], current_user['username'], "Submit Leave", f"Submitted leave request for {student['name']}")
         return jsonify({'message': 'Leave request submitted successfully.'}), 201
 
+
+@app.route('/api/leave/<leave_id>', methods=['DELETE'])
+@token_required
+@roles_required('Admin')
+def delete_leave(current_user, leave_id):
+    db = get_db()
+    db["leave_requests"].delete_one({"_id": leave_id})
+    return jsonify({"message": "Leave request deleted."})
+
 @app.route('/api/leave/<leave_id>', methods=['PUT'])
 @token_required
-@roles_required('Director', 'Admin')
+@roles_required('Director', 'Admin', 'AD')
 def approve_leave(current_user, leave_id):
     data = request.json
     status = data.get('status') # 'Approved' or 'Rejected'
@@ -1277,6 +1648,81 @@ def health_check():
         'database_mode': 'Mock persistent files' if get_db().__class__.__name__ == 'MockDatabase' else 'MongoDB cluster'
     })
 
+
+# =====================================================================
+# MESS FOOD POLL
+# =====================================================================
+@app.route('/api/food-poll/<date>', methods=['GET', 'POST'])
+@token_required
+def food_poll(current_user, date):
+    db = get_db()
+    if request.method == 'GET':
+        room = request.args.get('room')
+        query = {"date": date}
+        if room:
+            query["room_number"] = room
+        records = list(db["food_counts"].find(query))
+        return jsonify(records)
+        
+    if request.method == 'POST':
+        data = request.json
+        for item in data.get('records', []):
+            s_id = item['student_id']
+            db["food_counts"].update_one(
+                {"date": date, "student_id": s_id},
+                {"$set": {
+                    "date": date,
+                    "student_id": s_id,
+                    "class_name": item.get('class_name', ''),
+                    "room_number": item['room_number'],
+                    "breakfast": item.get('breakfast', False),
+                    "lunch": item.get('lunch', False),
+                    "dinner": item.get('dinner', False),
+                    "acknowledged": item.get('acknowledged', True)
+                }},
+                upsert=True
+            )
+        return jsonify({"message": "Food poll updated successfully."})
+        
+
+@app.route('/api/food-poll/config', methods=['GET', 'POST'])
+@token_required
+def active_poll_config(current_user):
+    db = get_db()
+    if request.method == 'POST':
+        if current_user.get('role') not in ['Admin', 'AD']:
+            return jsonify({'message': 'Unauthorized'}), 403
+        data = request.json
+        db["config"].update_one({"_id": "mess_poll_date"}, {"$set": {"date": data.get('date')}}, upsert=True)
+        return jsonify({'message': 'Active poll date set.'})
+    else:
+        doc = db["config"].find_one({"_id": "mess_poll_date"})
+        return jsonify({"date": doc.get("date", "") if doc else ""})
+
+@app.route('/api/food-poll/summary/<date>', methods=['GET'])
+@token_required
+def food_poll_summary(current_user, date):
+    db = get_db()
+    records = list(db["food_counts"].find({"date": date}))
+    summary = {"breakfast": 0, "lunch": 0, "dinner": 0, "total_recorded": len(records), "groups": {}}
+    for r in records:
+        grp = r.get('class_name', 'Unknown')
+        if grp not in summary['groups']:
+            summary['groups'][grp] = {"breakfast": 0, "lunch": 0, "dinner": 0}
+            
+        if r.get('breakfast'): 
+            summary['breakfast'] += 1
+            summary['groups'][grp]['breakfast'] += 1
+        if r.get('lunch'): 
+            summary['lunch'] += 1
+            summary['groups'][grp]['lunch'] += 1
+        if r.get('dinner'): 
+            summary['dinner'] += 1
+            summary['groups'][grp]['dinner'] += 1
+            
+    return jsonify(summary)
+
 if __name__ == '__main__':
+
     port = int(os.getenv("PORT", 5000))
     app.run(host='0.0.0.0', port=port, debug=True)
