@@ -262,7 +262,7 @@ const StudentManagement = () => {
                         {s.name}
                         <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
                       </Link>
-                      <span className="block text-[10px] text-gray-400 mt-0.5">{s.course}</span>
+                      <span className="block text-[10px] text-gray-400 mt-0.5">{s.course} • <span className="font-bold text-gray-600 bg-gray-100 px-1 rounded uppercase bg-blue-50/50 text-blue-700">Username: {s._id}</span></span>
                     </td>
                     <td className="p-4 font-bold text-gray-800">Room {s.room_number}</td>
                     <td className="p-4">{s.mobile}</td>
