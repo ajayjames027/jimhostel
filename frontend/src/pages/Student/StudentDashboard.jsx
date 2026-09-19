@@ -151,6 +151,17 @@ const StudentDashboard = () => {
         <p className="text-blue-100 font-medium">Room {myProfile?.room_number || '...'} | {myProfile?.course || '...'} | Manage your hostel requests here.</p>
       </div>
       
+      {announcements.length > 0 && (
+         <div className="bg-amber-100 text-amber-800 p-2.5 rounded-xl border border-amber-200 overflow-hidden relative shadow-sm flex items-center font-bold text-xs mt-1 mb-2">
+            <span className="whitespace-nowrap px-3 tracking-wider uppercase shrink-0 z-10 bg-amber-100 border-r border-amber-200">📢 HEADS UP:</span>
+            <marquee behavior="scroll" direction="left" scrollamount="5" className="ml-2 pt-0.5 w-full">
+               {announcements.map((a, i) => (
+                   <span key={i} className="mr-12 text-gray-800 tracking-wide text-sm">{a.message} <span className="font-semibold text-gray-500 text-[10px] ml-1">({a.author_role.toUpperCase()})</span></span>
+               ))}
+            </marquee>
+         </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="space-y-8">
             <div className="premium-card p-8 border-l-4 border-l-orange-500 relative overflow-hidden group">
