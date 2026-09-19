@@ -1,12 +1,7 @@
 import React from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import {
-  Bell,
-  Bell, NavLink, useNavigate } from 'react-router-dom';
-import {
-  Bell,
-  Bell, useAuth } from '../context/AuthContext';
-import {
-  Bell,
   Bell,
   LayoutDashboard,
   UserCheck,
