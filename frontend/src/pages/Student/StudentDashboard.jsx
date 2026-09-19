@@ -17,17 +17,20 @@ const StudentDashboard = () => {
 
   const [maintenanceForm, setMaintenanceForm] = useState({ issue: '', description: '', photo_data: '' });
   const [maintenanceHistory, setMaintenanceHistory] = useState([]);
+  const [announcements, setAnnouncements] = useState([]);
 
   useEffect(() => {
     const fetchMe = async () => {
       try {
         const res = await API.get(`/students/${user.username}`);
         setMyProfile(res.data);
-        
         const mres = await API.get(`/maintenance`);
         setMaintenanceHistory(mres.data);
+        const ares = await API.get(`/announcements`);
+        setAnnouncements(ares.data);
       } catch(e) {}
     }
+
     fetchMe();
   }, [user.username]);
 

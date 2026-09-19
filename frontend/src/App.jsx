@@ -33,6 +33,7 @@ import LateEntryRegister from './pages/Shared/LateEntryRegister';
 import LeaveManagement from './pages/Shared/LeaveManagement';
 import MessPoll from './pages/AD/MessPoll';
 import MaintenanceRegistry from './pages/AD/MaintenanceRegistry';
+import Announcements from './pages/Shared/Announcements';
 
 // Guard for protected routes checking roles
 const RoleGuard = ({ allowedRoles, children }) => {

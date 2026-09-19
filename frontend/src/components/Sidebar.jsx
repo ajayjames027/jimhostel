@@ -1,7 +1,13 @@
 import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import {
+  Bell,
+  Bell, NavLink, useNavigate } from 'react-router-dom';
+import {
+  Bell,
+  Bell, useAuth } from '../context/AuthContext';
+import {
+  Bell,
+  Bell,
   LayoutDashboard,
   UserCheck,
   History,
@@ -32,6 +38,8 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
   const adLinks = [
     { to: '/ad', label: 'Dashboard', icon: LayoutDashboard },
     { to: '/mark-attendance', label: 'Mark Attendance', icon: UserCheck },
+    { to: '/announcements', label: 'Announcements', icon: Bell },
+    { to: '/announcements', label: 'Announcements', icon: Bell },
     { to: '/attendance-history', label: 'Attendance History', icon: History },
     { to: '/late-entry', label: 'Late Entry Register', icon: BookOpen },
     { to: '/leave-management', label: 'Leave Management', icon: Calendar },
@@ -50,6 +58,8 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
   const adminLinks = [
     { to: '/admin', label: 'Admin Dashboard', icon: LayoutDashboard },
     { to: '/manage-students', label: 'Manage Students', icon: Users },
+    { to: '/announcements', label: 'Announcements', icon: Bell },
+    { to: '/announcements', label: 'Announcements', icon: Bell },
     { to: '/manage-rooms', label: 'Manage Rooms', icon: Home },
     { to: '/manage-accounts', label: 'User Accounts', icon: UserPlus },
     { to: '/leave-management', label: 'Leave Management', icon: Calendar },

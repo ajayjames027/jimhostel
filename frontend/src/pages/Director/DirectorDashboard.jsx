@@ -72,7 +72,7 @@ const DirectorDashboard = () => {
     labels: analytics?.trends.map((t) => t.label) || [],
     datasets: [
       {
-        label: 'Roll Call Attendance %',
+        label: 'Roll Call Attendance ',
         data: analytics?.trends.map((t) => t.percentage) || [],
         borderColor: '#2563EB',
         backgroundColor: 'rgba(37, 99, 235, 0.05)',
@@ -101,7 +101,7 @@ const DirectorDashboard = () => {
         min: 0,
         max: 100,
         ticks: {
-          callback: (value) => `${value}%`
+          callback: (value) => `${value}`
         }
       }
     }
@@ -139,7 +139,7 @@ const DirectorDashboard = () => {
         }
       }
     },
-    cutout: '65%'
+    cutout: '65'
   };
 
   return (
@@ -187,8 +187,8 @@ const DirectorDashboard = () => {
             <ClipboardList className="w-6 h-6" />
           </div>
           <div>
-            <span className="text-gray-400 text-[10px] font-bold uppercase tracking-wider block">Hostel Occupancy</span>
-            <h3 className="font-extrabold text-xl text-gray-800 mt-0.5">{analytics?.occupancy?.percentage || 0}%</h3>
+            <span className="text-gray-400 text-[10px] font-bold uppercase tracking-wider block">Approved Leaves</span>
+            <h3 className="font-extrabold text-xl text-gray-800 mt-0.5">{stats?.approved_leaves || 0}</h3>
           </div>
         </div>
       </div>
