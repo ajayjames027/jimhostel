@@ -1278,6 +1278,33 @@ def get_announcements(current_user):
         a["_id"] = str(a["_id"])
     return jsonify(ann_list)
 
+@app.route('/api/announcements', methods=['POST'])
+@token_required
+def create_announcement(current_user):
+    db = get_db()
+    data = request.json
+    import datetime
+    ann = {
+        "message": data.get('message', ''),
+        "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        "author": current_user.get('name', 'System Admin'),
+        "author_role": current_user.get('role', 'Admin')
+    }
+    result = db["announcements"].insert_one(ann)
+    ann["_id"] = str(result.inserted_id)
+    return jsonify(ann), 201
+
+@app.route('/api/announcements/<ann_id>', methods=['DELETE'])
+@token_required
+@roles_required('Admin', 'AD')
+def delete_announcement(current_user, ann_id):
+    db = get_db()
+    from bson import ObjectId
+    try: query = {"_id": ObjectId(ann_id)}
+    except: query = {"_id": ann_id}
+    db["announcements"].delete_one(query)
+    return jsonify({"message": "Successfully deleted"})
+
 @app.route('/api/alerts', methods=['GET'])
 @token_required
 def get_alerts(current_user):
