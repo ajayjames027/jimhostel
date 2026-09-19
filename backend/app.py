@@ -1269,6 +1269,15 @@ def get_defaulters(current_user):
         })
     return jsonify(result)
 
+@app.route('/api/announcements', methods=['GET'])
+@token_required
+def get_announcements(current_user):
+    db = get_db()
+    ann_list = list(db["announcements"].find().sort([("timestamp", -1)]))
+    for a in ann_list:
+        a["_id"] = str(a["_id"])
+    return jsonify(ann_list)
+
 @app.route('/api/alerts', methods=['GET'])
 @token_required
 def get_alerts(current_user):
