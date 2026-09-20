@@ -146,17 +146,17 @@ const StudentDashboard = () => {
   
   const handleSubmitFeedback = async (e) => {
     e.preventDefault();
-    if(feedback.length < 10) return showToast(\'Please write a slightly more detailed suggestion.\', \'warning\');
+    if (feedback.length < 10) return showToast('Please write a slightly more detailed suggestion.', 'warning');
     try {
-        await API.post(\'/feedback\', {
+        await API.post('/feedback', {
             student_id: user.username,
-            room_number: myProfile?.room_number || \'\',
+            room_number: myProfile?.room_number || '',
             message: feedback
         });
-        showToast(\'Feedback submitted successfully! Thank you!\', \'success\');
-        setFeedback(\'\');
+        showToast('Feedback submitted successfully! Thank you!', 'success');
+        setFeedback('');
     } catch(e) {
-        showToast(\'Failed to submit feedback.\', \'error\');
+        showToast('Failed to submit feedback.', 'error');
     }
   };
 
