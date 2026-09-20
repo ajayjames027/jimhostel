@@ -156,6 +156,17 @@ const StudentManagement = () => {
     setStatus('Active');
   };
 
+  const handleResetPassword = async (student) => {
+    if (window.confirm(`Are you sure you want to completely reset ${student.name}'s password to 'jim123'?`)) {
+      try {
+        await API.put(`/students/${student._id}/password`, { password: 'jim123' });
+        showToast(`Password overridden to 'jim123' for ${student.name}`, 'success');
+      } catch (error) {
+        showToast('Failed to reset password', 'error');
+      }
+    }
+  };
+
   const filteredStudents = students.filter((s) => {
     const q = searchTerm.toLowerCase();
     return (
