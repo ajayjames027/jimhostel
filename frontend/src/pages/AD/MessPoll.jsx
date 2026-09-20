@@ -172,8 +172,8 @@ const MessPoll = () => {
         <div className="flex flex-wrap gap-3 mb-4">
            {activeDates.length === 0 && <span className="text-sm font-semibold text-gray-400 border border-dashed border-gray-300 px-4 py-2 rounded-xl">No days currently queued. Poll is closed.</span>}
            {activeDates.map(d => (
-              <span key={d} className="px-3 py-1.5 bg-white border border-primary/20 text-primary rounded-lg font-bold text-sm shadow-sm flex items-center gap-2">
-                 <Calendar className="w-4 h-4"/> {d}
+              <span key={d.split('-').reverse().join('-')} className="px-3 py-1.5 bg-white border border-primary/20 text-primary rounded-lg font-bold text-sm shadow-sm flex items-center gap-2">
+                 <Calendar className="w-4 h-4"/> {d.split('-').reverse().join('-')}
                  <button onClick={() => downloadPDF(d)} title="Download Finalized List PDF" className="text-gray-400 hover:text-indigo-600 transition-colors ml-1"><Download className="w-4 h-4"/></button>
                  <button onClick={() => removeActiveDate(d)} title="Remove Day" className="text-gray-400 hover:text-red-500 transition-colors"><Trash2 className="w-4 h-4"/></button>
               </span>
@@ -210,10 +210,10 @@ const MessPoll = () => {
            <div className="flex-1 w-full">
               <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Viewing Date Data</label>
               <select value={date} onChange={e => setDate(e.target.value)} className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg w-full text-sm font-bold h-11 text-gray-800">
-                 <option value={date}>{date} (Selected)</option>
+                 <option value={date}>{date ? date.split('-').reverse().join('-') : ''} (Selected)</option>
                  <optgroup label="Active Campaign Dates">
                  {activeDates.map(d => (
-                    <option key={d} value={d}>{d}</option>
+                    <option key={d.split('-').reverse().join('-')} value={d.split('-').reverse().join('-')}>{d.split('-').reverse().join('-')}</option>
                  ))}
                  </optgroup>
               </select>
