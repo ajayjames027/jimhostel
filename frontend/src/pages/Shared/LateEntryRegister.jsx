@@ -233,7 +233,7 @@ const LateEntryRegister = () => {
                       </td>
                       <td className="p-4">
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 text-[10px] font-bold">
-                          <Clock className="w-3.5 h-3.5 text-rose-500" /> {new Date(le.entry_time).toLocaleString()}
+                          <Clock className="w-3.5 h-3.5 text-rose-500" /> {new Date(le.entry_time).toLocaleString('en-GB')}
                         </span>
                       </td>
                       <td className="p-4 text-gray-500 italic max-w-sm overflow-hidden text-ellipsis whitespace-normal">

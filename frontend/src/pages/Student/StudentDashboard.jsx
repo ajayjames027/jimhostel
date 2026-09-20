@@ -334,7 +334,7 @@ const StudentDashboard = () => {
                             <div key={m._id} className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col gap-2">
                                 <div className="flex justify-between items-start">
                                     <div>
-                                       <span className="text-[10px] font-extrabold text-gray-400 uppercase tracking-wide">{new Date(m.timestamp).toLocaleDateString()}</span>
+                                       <span className="text-[10px] font-extrabold text-gray-400 uppercase tracking-wide">{new Date(m.timestamp).toLocaleDateString('en-GB')}</span>
                                        <p className="font-bold text-gray-800 text-sm">{m.issue}</p>
                                     </div>
                                     <span className={`px-2 py-1 rounded text-[10px] font-extrabold uppercase ${m.status === 'Complete' ? 'bg-success/10 text-success' : 'bg-amber-100 text-amber-600'}`}>{m.status}</span>

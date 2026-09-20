@@ -115,7 +115,7 @@ const AdminDashboard = () => {
                 <div key={log._id} className="py-3 text-xs">
                   <div className="flex justify-between items-center">
                     <span className="font-bold text-gray-800">{log.action}</span>
-                    <span className="text-[10px] text-gray-400 font-semibold">{new Date(log.timestamp).toLocaleString()}</span>
+                    <span className="text-[10px] text-gray-400 font-semibold">{new Date(log.timestamp).toLocaleString('en-GB')}</span>
                   </div>
                   <p className="text-gray-500 mt-1">{log.details}</p>
                   <span className="text-[9px] text-primary font-bold uppercase block mt-1.5">User: {log.username}</span>

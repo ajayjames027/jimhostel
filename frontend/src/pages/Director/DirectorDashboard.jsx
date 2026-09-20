@@ -264,7 +264,7 @@ const DirectorDashboard = () => {
                     </h4>
                     <p className="text-gray-500 text-[11px] mt-1 leading-normal">{a.message}</p>
                     <span className="text-[9px] text-gray-400 font-semibold block mt-1.5">
-                      {new Date(a.timestamp).toLocaleString()}
+                      {new Date(a.timestamp).toLocaleString('en-GB')}
                     </span>
                   </div>
                   <Link

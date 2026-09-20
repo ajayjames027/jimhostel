@@ -63,7 +63,7 @@ const Announcements = () => {
                     <div key={a._id} className="premium-card p-4 flex justify-between items-start">
                         <div>
                             <p className="text-gray-800 font-bold text-sm mb-1">{a.message}</p>
-                            <span className="text-[10px] text-gray-400 font-semibold">{new Date(a.timestamp).toLocaleString()} • Posted by {a.author} ({a.author_role})</span>
+                            <span className="text-[10px] text-gray-400 font-semibold">{new Date(a.timestamp).toLocaleString('en-GB')} • Posted by {a.author} ({a.author_role})</span>
                         </div>
                         <button onClick={() => deleteAnnouncement(a._id)} className="text-gray-400 hover:text-red-500"><Trash2 className="w-4 h-4"/></button>
                     </div>

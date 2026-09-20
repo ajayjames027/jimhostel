@@ -69,7 +69,7 @@ const Topbar = ({ onToggleSidebar }) => {
         {/* Date view */}
         <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-gray-400">
           <Clock className="w-4 h-4 text-gray-300" />
-          <span>{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' })}</span>
+          <span>{new Date().toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' })}</span>
         </div>
       </div>
 
@@ -123,7 +123,7 @@ const Topbar = ({ onToggleSidebar }) => {
                           <h4 className="font-bold text-xs text-gray-800 leading-tight">{n.title}</h4>
                           <p className="text-gray-500 text-[11px] mt-1 leading-normal">{n.message}</p>
                           <span className="text-[9px] text-gray-400 font-semibold block mt-1.5">
-                            {new Date(n.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {new Date(n.timestamp).toLocaleDateString()}
+                            {new Date(n.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {new Date(n.timestamp).toLocaleDateString('en-GB')}
                           </span>
                         </div>
                       </div>

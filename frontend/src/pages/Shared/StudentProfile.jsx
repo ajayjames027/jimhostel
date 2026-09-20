@@ -196,7 +196,7 @@ const StudentProfile = () => {
                           {att.status}
                         </span>
                         <span className="text-gray-400 text-[10px] block mt-0.5">
-                          {new Date(att.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} • {att.type.toUpperCase()}
+                          {new Date(att.date).toLocaleDateString('en-GB', { month: 'short', day: 'numeric', year: 'numeric' })} • {att.type.toUpperCase()}
                         </span>
                       </div>
                       {att.remarks && (
@@ -235,7 +235,7 @@ const StudentProfile = () => {
                     </span>
                   </div>
                   <p className="text-gray-600 font-medium">
-                    {new Date(leave.leave_from).toLocaleDateString()} to {new Date(leave.leave_to).toLocaleDateString()}
+                    {new Date(leave.leave_from).toLocaleDateString('en-GB')} to {new Date(leave.leave_to).toLocaleDateString('en-GB')}
                   </p>
                   <div className="text-[11px] text-gray-500 leading-normal mt-1 border-t border-gray-100/50 pt-2">
                     <strong className="text-gray-600 font-bold block mb-0.5">Reason:</strong>

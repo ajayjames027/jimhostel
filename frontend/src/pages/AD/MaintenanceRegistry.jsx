@@ -56,7 +56,7 @@ const MaintenanceRegistry = () => {
                                <span className={`px-2 py-1 rounded text-[10px] font-extrabold uppercase tracking-wide flex items-center gap-1 ${m.status === 'Complete' ? 'bg-success/10 text-success' : 'bg-amber-100 text-amber-600'}`}>
                                    {m.status === 'Complete' ? <CheckCircle2 className="w-3 h-3"/> : <Clock className="w-3 h-3"/>} {m.status}
                                </span>
-                               <span className="text-[10px] font-bold text-gray-400">{new Date(m.timestamp).toLocaleDateString()}</span>
+                               <span className="text-[10px] font-bold text-gray-400">{new Date(m.timestamp).toLocaleDateString('en-GB')}</span>
                            </div>
                            {user?.role === 'Admin' && (
                                <button onClick={() => deleteIssue(m._id)} className="absolute top-4 right-4 text-gray-300 hover:text-red-500 transition-colors bg-white rounded p-1"><Trash2 className="w-4 h-4"/></button>

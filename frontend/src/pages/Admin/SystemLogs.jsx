@@ -14,7 +14,7 @@ const SystemLogs = () => {
      const csvContent = [headers.join(',')];
      filteredLogs.forEach(log => {
         const row = [
-           `"${new Date(log.timestamp).toLocaleString()}"`,
+           `"${new Date(log.timestamp).toLocaleString('en-GB')}"`,
            `"${log.username}"`,
            `"${log.action}"`,
            `"${log.details.replace(/"/g, '""')}"`
@@ -111,7 +111,7 @@ const SystemLogs = () => {
                     <td className="p-4 text-gray-400 font-semibold">
                       <span className="flex items-center gap-1.5">
                         <Clock className="w-3.5 h-3.5 shrink-0 text-gray-300" />
-                        {new Date(log.timestamp).toLocaleString()}
+                        {new Date(log.timestamp).toLocaleString('en-GB')}
                       </span>
                     </td>
                     <td className="p-4 text-primary font-bold">{log.username}</td>

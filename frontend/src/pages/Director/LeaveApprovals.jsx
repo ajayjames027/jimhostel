@@ -96,7 +96,7 @@ const LeaveApprovals = () => {
                   <div className="text-[11px] text-gray-500 border-t border-gray-100/50 pt-2 leading-relaxed">
                     <div className="flex items-center gap-1.5 font-semibold text-gray-700 mb-1">
                       <Calendar className="w-3.5 h-3.5 text-gray-400" />
-                      <span>{new Date(l.leave_from).toLocaleDateString()} to {new Date(l.leave_to).toLocaleDateString()}</span>
+                      <span>{new Date(l.leave_from).toLocaleDateString('en-GB')} to {new Date(l.leave_to).toLocaleDateString('en-GB')}</span>
                     </div>
                     <strong className="text-gray-600 font-bold block mb-0.5">Reason:</strong>
                     "{l.reason}"
@@ -149,7 +149,7 @@ const LeaveApprovals = () => {
                     </span>
                   </div>
                   <p className="text-[10px] text-gray-400 font-semibold">
-                    {new Date(l.leave_from).toLocaleDateString()} to {new Date(l.leave_to).toLocaleDateString()}
+                    {new Date(l.leave_from).toLocaleDateString('en-GB')} to {new Date(l.leave_to).toLocaleDateString('en-GB')}
                   </p>
                   <p className="text-gray-500 text-[10px] italic line-clamp-1">"{l.reason}"</p>
                 </div>

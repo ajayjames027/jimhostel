@@ -195,7 +195,7 @@ const UserAccounts = () => {
                       </span>
                     </td>
                     <td className="p-4 text-gray-400">
-                      {acc.created_at ? new Date(acc.created_at).toLocaleDateString() : '—'}
+                      {acc.created_at ? new Date(acc.created_at).toLocaleDateString('en-GB') : '—'}
                     </td>
                     <td className="p-4">
                       <div className="flex gap-2">
