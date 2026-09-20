@@ -69,13 +69,17 @@ const StudentDashboard = () => {
 
   const toggleMeal = (d, type) => {
       if (polls[d] && polls[d].hasAcknowledged) return; 
-      setPolls(prev => ({
-          ...prev,
-          [d]: {
-              ...prev[d],
-              [type]: !prev[d][type]
-          }
-      }));
+      setPolls(prev => {
+          const defaultState = { breakfast: false, lunch: false, dinner: false, hasAcknowledged: false };
+          const prevState = prev[d] || defaultState;
+          return {
+              ...prev,
+              [d]: {
+                  ...prevState,
+                  [type]: !prevState[type]
+              }
+          };
+      });
   };
 
   const saveMeals = async () => {
