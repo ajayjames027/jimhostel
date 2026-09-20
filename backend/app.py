@@ -1717,6 +1717,8 @@ def food_poll(current_user, date):
         if room:
             query["room_number"] = room
         records = list(db["food_counts"].find(query))
+        for r in records:
+            r["_id"] = str(r["_id"])
         return jsonify(records)
         
     if request.method == 'POST':
