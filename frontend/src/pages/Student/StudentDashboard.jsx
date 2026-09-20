@@ -193,7 +193,7 @@ const StudentDashboard = () => {
                                     <div key={d} className="bg-gray-50 p-5 rounded-2xl border border-gray-200 relative overflow-hidden">
                                         {locked && <div className="absolute inset-0 bg-gray-100/40 z-10 pointer-events-none"></div>}
                                         <div className="flex justify-between items-center mb-4 relative z-20">
-                                            <h4 className="font-bold text-gray-800 text-sm flex items-center gap-2"><Calendar className="w-4 h-4 text-orange-500"/> {d}</h4>
+                                            <h4 className="font-bold text-gray-800 text-sm flex items-center gap-2"><Calendar className="w-4 h-4 text-orange-500"/> {d.split('-').reverse().join('-')}</h4>
                                             {locked && <span className="px-2 py-0.5 bg-success/10 text-emerald-700 rounded text-[10px] uppercase font-extrabold flex items-center gap-1"><CheckCircle2 className="w-3 h-3"/> Locked Uneditable</span>}
                                         </div>
                                         
