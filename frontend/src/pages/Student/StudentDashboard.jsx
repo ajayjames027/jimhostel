@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import API from '../../api';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import { Coffee, Sun, Moon, Calendar, Send, Info, Clock, CheckCircle2, XCircle, Wrench, Camera, Save } from 'lucide-react';
+import { Coffee, Sun, Moon, Calendar, Send, Info, Clock, CheckCircle2, XCircle, Wrench, Camera, Save, Lock, AlertCircle } from 'lucide-react';
 
 const StudentDashboard = () => {
   const { user } = useAuth();
@@ -18,6 +18,7 @@ const StudentDashboard = () => {
 
   const [maintenanceForm, setMaintenanceForm] = useState({ issue: '', description: '', photo_data: '' });
   const [maintenanceHistory, setMaintenanceHistory] = useState([]);
+  const [newPassword, setNewPassword] = useState('');
   const [announcements, setAnnouncements] = useState([]);
 
   useEffect(() => {
@@ -143,6 +144,18 @@ const StudentDashboard = () => {
     } catch(e) { showToast('Error submitting issue', 'error'); }
   };
   
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    if(newPassword.length < 5) return showToast('Password must be at least 5 characters', 'warning');
+    try {
+        await API.put(/students//password, { password: newPassword });
+        showToast('Password changed successfully!', 'success');
+        setNewPassword('');
+    } catch(e) {
+        showToast('Failed to update password', 'error');
+    }
+  };
+
   const handlePhotoUpload = (e) => {
      const file = e.target.files[0];
      if (!file) return;
@@ -344,6 +357,22 @@ const StudentDashboard = () => {
                      </div>
                  </div>
               )}
+            </div>
+            
+            <div className="premium-card p-8 border-t-4 border-t-indigo-500 shadow-xl shadow-indigo-500/5 relative overflow-hidden mt-8">
+              <h3 className="font-extrabold text-xl text-gray-900 mb-2 flex items-center gap-2"><Lock className="w-6 h-6 text-indigo-500" /> Account Security</h3>
+              <p className="text-sm font-semibold text-gray-500 mb-6">Change your login password to secure your portal account.</p>
+              
+              <form onSubmit={handleChangePassword} className="space-y-4">
+                 <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5 ml-1">New Password</label>
+                    <input type="password" required value={newPassword} onChange={e=>setNewPassword(e.target.value)} placeholder="Enter new strong password" className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50/50 focus:bg-white text-sm font-medium focus:ring-2 ring-primary/20 outline-none transition-all" />
+                 </div>
+                 
+                 <button type="submit" className="w-full bg-indigo-500 hover:bg-indigo-600 text-white py-3 rounded-xl font-extrabold text-sm shadow-xl shadow-indigo-500/20 active:scale-[0.98] transition-all">
+                    Update Password
+                 </button>
+              </form>
             </div>
             
         </div>

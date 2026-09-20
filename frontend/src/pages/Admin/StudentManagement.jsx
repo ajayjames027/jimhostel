@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import API from '../../api';
 import { useToast } from '../../context/ToastContext';
-import { Search, Plus, Edit, Trash, X, User, Phone, MapPin, ClipboardList, HelpCircle, ArrowRight } from 'lucide-react';
+import { Search, Plus, Edit, Trash, X, User, Phone, MapPin, ClipboardList, HelpCircle, ArrowRight, Lock } from 'lucide-react';
 
 const StudentManagement = () => {
   const { showToast } = useToast();
@@ -286,6 +286,13 @@ const StudentManagement = () => {
                           className="p-1.5 rounded-lg border border-gray-100 hover:border-blue-200 text-gray-500 hover:text-primary hover:bg-blue-50/30 transition-all"
                         >
                           <Edit className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleResetPassword(s)}
+                          title="Reset Password to jim123"
+                          className="p-1.5 rounded-lg border border-gray-100 hover:border-amber-200 text-gray-500 hover:text-amber-500 hover:bg-amber-50/30 transition-all"
+                        >
+                          <Lock className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={() => handleDeleteClick(s)}

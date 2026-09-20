@@ -488,8 +488,8 @@ def login():
             student = db["students"].find_one({"_id": username})
             
         if student:
-            # For students, check if password matches 'jim123'
-            if password == "jim123":
+            # For students, check if password matches DB (fallback jim123)
+            if password == student.get('password', 'jim123'):
                 token = jwt.encode({
                     'user_id': student['_id'],
                     'username': student['_id'],
@@ -530,6 +530,34 @@ def login():
             'email': user['email']
         }
     })
+
+@app.route('/api/students/<student_id>/password', methods=['GET', 'PUT'])
+@token_required
+def manage_student_password(current_user, student_id):
+    db = get_db()
+    
+    if request.method == 'GET':
+        if current_user.get('role') not in ['Admin', 'AD']:
+            return jsonify({'message': 'Unauthorized'}), 403
+        student = db["students"].find_one({"_id": student_id})
+        if not student:
+            return jsonify({'message': 'Student not found'}), 404
+        return jsonify({'password': student.get('password', 'jim123')})
+        
+    if request.method == 'PUT':
+        # Students changing their own, or AD resetting
+        if current_user.get('role') not in ['Admin', 'AD'] and current_user.get('_id') != student_id:
+            return jsonify({'message': 'Unauthorized'}), 403
+            
+        new_password = request.json.get('password')
+        if not new_password:
+            return jsonify({'message': 'Password required'}), 400
+            
+        db["students"].update_one(
+            {"_id": student_id},
+            {"$set": {"password": new_password}}
+        )
+        return jsonify({'message': 'Password updated successfully'})
 
 @app.route('/api/auth/me', methods=['GET'])
 @token_required
@@ -952,7 +980,8 @@ def mark_attendance(current_user):
     if not room:
         return jsonify({'message': f"Room {room_number} not found."}), 404
         
-    timestamp = f"{date_str}T{datetime.datetime.now().strftime('%H:%M:%S')}"
+    timestamp_time = datetime.datetime.now(datetime.timezone.utc).strftime('%H:%M:%S')
+    timestamp = f"{date_str}T{timestamp_time}+00:00"
     marked_by = current_user['name']
     
     for s_id, status in attendance_data.items():
