@@ -17,8 +17,8 @@ const StudentDashboard = () => {
   const [leaveForm, setLeaveForm] = useState({ leave_from: '', leave_to: '', reason: '' });
 
   const [maintenanceForm, setMaintenanceForm] = useState({ issue: '', description: '', photo_data: '' });
-  const [maintenanceHistory, setMaintenanceHistory] = useState([]);
   const [newPassword, setNewPassword] = useState('');
+  const [feedback, setFeedback] = useState('');
   const [announcements, setAnnouncements] = useState([]);
 
   useEffect(() => {
@@ -144,6 +144,22 @@ const StudentDashboard = () => {
     } catch(e) { showToast('Error submitting issue', 'error'); }
   };
   
+  const handleSubmitFeedback = async (e) => {
+    e.preventDefault();
+    if(feedback.length < 10) return showToast(\'Please write a slightly more detailed suggestion.\', \'warning\');
+    try {
+        await API.post(\'/feedback\', {
+            student_id: user.username,
+            room_number: myProfile?.room_number || \'\',
+            message: feedback
+        });
+        showToast(\'Feedback submitted successfully! Thank you!\', \'success\');
+        setFeedback(\'\');
+    } catch(e) {
+        showToast(\'Failed to submit feedback.\', \'error\');
+    }
+  };
+
   const handleChangePassword = async (e) => {
     e.preventDefault();
     if(newPassword.length < 5) return showToast('Password must be at least 5 characters', 'warning');
@@ -245,7 +261,7 @@ const StudentDashboard = () => {
                               <div>
                                   <p className="font-bold text-gray-900 text-sm">{new Date(att.date).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' })}</p>
                                   <p className="text-[11px] uppercase font-bold tracking-widest text-gray-400 mt-1">
-                                      Taken at: {att.timestamp ? new Date(att.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }) : 'N/A'}
+                                      Taken at: {att.timestamp ? new Date(att.timestamp + (att.timestamp.includes('Z') || att.timestamp.includes('+') ? '' : 'Z')).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }) : 'N/A'}
                                   </p>
                               </div>
                               {att.status === 'Present' && <span className="bg-emerald-50 text-emerald-600 border border-emerald-100 px-3 py-1.5 rounded-lg text-xs font-bold flex gap-1 items-center"><CheckCircle2 className="w-3.5 h-3.5"/> Present</span>}
@@ -371,6 +387,21 @@ const StudentDashboard = () => {
                  
                  <button type="submit" className="w-full bg-indigo-500 hover:bg-indigo-600 text-white py-3 rounded-xl font-extrabold text-sm shadow-xl shadow-indigo-500/20 active:scale-[0.98] transition-all">
                     Update Password
+                 </button>
+              </form>
+            </div>
+            
+            <div className="premium-card p-8 border-t-4 border-t-fuchsia-500 shadow-xl shadow-fuchsia-500/5 relative overflow-hidden mt-8">
+              <h3 className="font-extrabold text-xl text-gray-900 mb-2 flex items-center gap-2"><Send className="w-6 h-6 text-fuchsia-500" /> Feedback & Suggestions</h3>
+              <p className="text-sm font-semibold text-gray-500 mb-6">Have an idea to improve the hostel or the food? Drop it anonymously here!</p>
+              
+              <form onSubmit={handleSubmitFeedback} className="space-y-4">
+                 <div>
+                    <textarea required rows="3" value={feedback} onChange={e=>setFeedback(e.target.value)} placeholder="Type your honest feedback or creative suggestions..." className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50/50 focus:bg-white text-sm font-medium focus:ring-2 ring-primary/20 outline-none transition-all custom-scrollbar resize-none" />
+                 </div>
+                 
+                 <button type="submit" className="w-full bg-fuchsia-500 hover:bg-fuchsia-600 text-white py-3 rounded-xl font-extrabold text-sm shadow-xl shadow-fuchsia-500/20 active:scale-[0.98] transition-all">
+                    Send Suggestion
                  </button>
               </form>
             </div>

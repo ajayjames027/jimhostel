@@ -357,6 +357,20 @@ def update_student_attendance_percentage(student_id):
     )
 
 
+@app.route('/api/feedback', methods=['POST'])
+@token_required
+def submit_feedback(current_user):
+    db = get_db()
+    data = request.json
+    db["feedback"].insert_one({
+        "_id": str(datetime.datetime.utcnow().timestamp()),
+        "student_id": data.get("student_id"),
+        "room_number": data.get("room_number"),
+        "message": data.get("message"),
+        "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat()
+    })
+    return jsonify({"message": "Feedback submitted"})
+
 @app.route('/api/maintenance', methods=['GET', 'POST'])
 @token_required
 def handle_maintenance(current_user):
