@@ -17,6 +17,7 @@ const StudentDashboard = () => {
   const [leaveForm, setLeaveForm] = useState({ leave_from: '', leave_to: '', reason: '' });
 
   const [maintenanceForm, setMaintenanceForm] = useState({ issue: '', description: '', photo_data: '' });
+  const [maintenanceHistory, setMaintenanceHistory] = useState([]);
   const [newPassword, setNewPassword] = useState('');
   const [feedback, setFeedback] = useState('');
   const [announcements, setAnnouncements] = useState([]);
@@ -164,7 +165,7 @@ const StudentDashboard = () => {
     e.preventDefault();
     if(newPassword.length < 5) return showToast('Password must be at least 5 characters', 'warning');
     try {
-        await API.put(/students//password, { password: newPassword });
+        await API.put(`/students/${user.username}/password`, { password: newPassword });
         showToast('Password changed successfully!', 'success');
         setNewPassword('');
     } catch(e) {
