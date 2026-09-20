@@ -288,7 +288,7 @@ def log_action(user_id, username, action, details):
         "username": username,
         "action": action,
         "details": details,
-        "timestamp": datetime.datetime.utcnow().isoformat()
+        "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat()
     }
     db["audit_logs"].insert_one(log_doc)
 
@@ -329,7 +329,7 @@ def check_continuous_absences(student_id, student_name, room_number):
                 "type": "SMS/Email Triggered",
                 "status": "Unread",
                 "level": level,
-                "timestamp": datetime.datetime.utcnow().isoformat()
+                "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat()
             }
             db["notifications"].insert_one(alert_doc)
             print(f"ALERT CREATED: {title} for {student_name}")
@@ -372,7 +372,7 @@ def handle_maintenance(current_user):
             "description": data.get("description"),
             "photo_data": data.get("photo_data", ""),
             "status": "Pending",
-            "timestamp": datetime.datetime.utcnow().isoformat()
+            "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat()
         }
         db["maintenance"].insert_one(doc)
         return jsonify({"message": "Maintenance issue reported."})
@@ -557,7 +557,7 @@ def forgot_password():
             "message": f"Password reset instructions requested for account '{user['username']}'. Reset code: {random.randint(100000, 999999)}",
             "type": "Email",
             "status": "Unread",
-            "timestamp": datetime.datetime.utcnow().isoformat()
+            "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat()
         }
         db["notifications"].insert_one(notif)
     
@@ -625,7 +625,7 @@ def manage_accounts(current_user):
             "role": role,
             "email": email,
             "name": name,
-            "created_at": datetime.datetime.utcnow().isoformat()
+            "created_at": datetime.datetime.now(datetime.timezone.utc).isoformat()
         }
         db["users"].insert_one(new_user)
         log_action(current_user['_id'], current_user['username'], "Create User", f"Created {role} account: {username}")
@@ -1182,7 +1182,7 @@ def manage_leaves(current_user):
             "reason": reason,
             "status": "Pending",
             "approved_by": "",
-            "created_at": datetime.datetime.utcnow().isoformat()
+            "created_at": datetime.datetime.now(datetime.timezone.utc).isoformat()
         }
         db["leave_requests"].insert_one(new_leave)
         log_action(current_user['_id'], current_user['username'], "Submit Leave", f"Submitted leave request for {student['name']}")
@@ -1235,7 +1235,7 @@ def approve_leave(current_user, leave_id):
             "message": f"Leave from {leave['leave_from']} to {leave['leave_to']} approved by Director.",
             "type": "SMS/Email",
             "status": "Unread",
-            "timestamp": datetime.datetime.utcnow().isoformat()
+            "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat()
         }
         db["notifications"].insert_one(notif)
         
@@ -1372,7 +1372,7 @@ def manage_visitors(current_user):
             "entry_time": entry_time,
             "exit_time": exit_time,
             "purpose": purpose,
-            "created_at": datetime.datetime.utcnow().isoformat()
+            "created_at": datetime.datetime.now(datetime.timezone.utc).isoformat()
         }
         db["visitors"].insert_one(new_visitor)
         return jsonify({'message': 'Visitor log created successfully.'}), 201
@@ -1409,7 +1409,7 @@ def manage_late_entries(current_user):
             "entry_time": entry_time,
             "reason": reason,
             "approved_by": approved_by,
-            "created_at": datetime.datetime.utcnow().isoformat()
+            "created_at": datetime.datetime.now(datetime.timezone.utc).isoformat()
         }
         db["late_entries"].insert_one(new_late_entry)
         
@@ -1702,7 +1702,7 @@ def health_check():
     return jsonify({
         'status': 'healthy',
         'app': 'JIM Hostel Attendance API Server',
-        'time': datetime.datetime.utcnow().isoformat(),
+        'time': datetime.datetime.now(datetime.timezone.utc).isoformat(),
         'database_mode': 'Mock persistent files' if get_db().__class__.__name__ == 'MockDatabase' else 'MongoDB cluster'
     })
 
