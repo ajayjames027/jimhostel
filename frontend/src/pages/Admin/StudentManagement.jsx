@@ -176,12 +176,12 @@ const StudentManagement = () => {
         
         <div className="flex flex-col sm:flex-row gap-2">
             <button
-                onClick={() => window.open(API.defaults.baseURL + '/reports/students-export?format=pdf&token=' + localStorage.getItem('token'), '_blank')} 
+                onClick={() => window.open(API.defaults.baseURL + '/reports/students-export?format=pdf&token=' + localStorage.getItem('jim_token'), '_blank')} 
                 className="px-4 py-2.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-bold text-xs shadow-md transition-all">
                 Export PDF
             </button>
             <button
-                onClick={() => window.open(API.defaults.baseURL + '/reports/students-export?format=excel&token=' + localStorage.getItem('token'), '_blank')} 
+                onClick={() => window.open(API.defaults.baseURL + '/reports/students-export?format=excel&token=' + localStorage.getItem('jim_token'), '_blank')} 
                 className="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold text-xs shadow-md transition-all">
                 Export Excel
             </button>
