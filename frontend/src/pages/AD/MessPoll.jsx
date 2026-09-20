@@ -228,7 +228,27 @@ const MessPoll = () => {
         </div>
       </div>
 
-      <div className="flex justify-end pr-2">
+      <div className="flex justify-end pr-2 gap-3 mb-4">
+        <button onClick={async () => {
+             const payload = students.map(s => ({
+                 student_id: s._id,
+                 room_number: s.room_number,
+                 class_name: s.course,
+                 breakfast: false, lunch: false, dinner: false,
+                 acknowledged: false
+             }));
+             try {
+                await API.post(`/food-poll/${date.split('-').reverse().join('-')}`, { records: payload });
+             } catch(e) {
+                // If it fails with reversed format, try original
+                await API.post(`/food-poll/${date}`, { records: payload });
+             }
+             
+             showToast('Poll manually unlocked for all students', 'success');
+             setTimeout(()=>window.location.reload(), 1000);
+        }} className="px-6 py-2.5 bg-white text-rose-600 border border-rose-200 font-extrabold rounded-lg flex gap-2 items-center text-sm shadow-sm transition-transform hover:bg-rose-50">
+           Unlock All Students
+        </button>
         <button onClick={savePoll} className="px-6 py-2.5 bg-success text-white font-bold rounded-lg flex gap-2 items-center text-sm shadow-md transition-transform hover:scale-105">
            <Save className="w-4 h-4"/> Save Modificattions / Master Override
         </button>
