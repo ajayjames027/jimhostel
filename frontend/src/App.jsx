@@ -34,6 +34,8 @@ import LeaveManagement from './pages/Shared/LeaveManagement';
 import MessPoll from './pages/AD/MessPoll';
 import MaintenanceRegistry from './pages/AD/MaintenanceRegistry';
 import Announcements from './pages/Shared/Announcements';
+import StudentSettings from './pages/Student/StudentSettings';
+import FeedbackViewer from './pages/Shared/FeedbackViewer';
 
 // Guard for protected routes checking roles
 const RoleGuard = ({ allowedRoles, children }) => {
@@ -160,6 +162,12 @@ function App() {
                   <MaintenanceRegistry />
                 </RoleGuard>
               } />
+              
+              <Route path="feedback" element={
+                <RoleGuard allowedRoles={['AD', 'Admin', 'Director']}>
+                  <FeedbackViewer />
+                </RoleGuard>
+              } />
               <Route path="announcements" element={
                 <RoleGuard allowedRoles={['AD', 'Admin']}>
                   <Announcements />
@@ -187,6 +195,11 @@ function App() {
               <Route path="student" element={
                 <RoleGuard allowedRoles={['Student']}>
                   <StudentDashboard />
+                </RoleGuard>
+              } />
+              <Route path="student-settings" element={
+                <RoleGuard allowedRoles={['Student']}>
+                  <StudentSettings />
                 </RoleGuard>
               } />
 

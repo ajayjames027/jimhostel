@@ -357,10 +357,16 @@ def update_student_attendance_percentage(student_id):
     )
 
 
-@app.route('/api/feedback', methods=['POST'])
+@app.route('/api/feedback', methods=['GET', 'POST'])
 @token_required
-def submit_feedback(current_user):
+def handle_feedback(current_user):
     db = get_db()
+    if request.method == 'GET':
+        if current_user['role'] not in ['Admin', 'AD', 'Director']:
+            return jsonify({'message': 'Unauthorized'}), 403
+        feedback_list = list(db["feedback"].find().sort("timestamp", -1))
+        return jsonify(feedback_list)
+
     data = request.json
     db["feedback"].insert_one({
         "_id": str(datetime.datetime.utcnow().timestamp()),

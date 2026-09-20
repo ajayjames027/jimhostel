@@ -18,7 +18,9 @@ import {
   BookOpen,
   Calendar,
   Coffee,
-  Wrench
+  Wrench,
+  MessageSquare,
+  Settings
 } from 'lucide-react';
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
@@ -39,6 +41,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     { to: '/leave-management', label: 'Leave Management', icon: Calendar },
     { to: '/mess-poll', label: 'Mess Food Poll', icon: Coffee },
     { to: '/maintenance', label: 'Maintenance Issues', icon: Wrench },
+    { to: '/feedback', label: 'Student Feedback', icon: MessageSquare },
     { to: '/reports', label: 'Download Reports', icon: FileSpreadsheet },
   ];
 
@@ -46,6 +49,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     { to: '/director', label: 'Director Dashboard', icon: LayoutDashboard },
     { to: '/defaulters', label: 'Defaulters List', icon: AlertTriangle },
     { to: '/leave-management', label: 'Leave Management', icon: Calendar },
+    { to: '/feedback', label: 'Student Feedback', icon: MessageSquare },
     { to: '/reports', label: 'Download Reports', icon: FileSpreadsheet },
   ];
 
@@ -58,11 +62,13 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     { to: '/leave-management', label: 'Leave Management', icon: Calendar },
     { to: '/mess-poll', label: 'Mess Food Poll', icon: Coffee },
     { to: '/maintenance', label: 'Maintenance Issues', icon: Wrench },
+    { to: '/feedback', label: 'Student Feedback', icon: MessageSquare },
     { to: '/system-logs', label: 'System Logs', icon: FileText },
   ];
 
   const studentLinks = [
-    { to: '/student', label: 'My Dashboard', icon: LayoutDashboard }
+    { to: '/student', label: 'My Dashboard', icon: LayoutDashboard },
+    { to: '/student-settings', label: 'Requests & Settings', icon: Settings }
   ];
 
   let links = [];
