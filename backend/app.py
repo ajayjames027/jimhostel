@@ -1738,7 +1738,7 @@ def food_poll(current_user, date):
                     "breakfast": item.get('breakfast', False),
                     "lunch": item.get('lunch', False),
                     "dinner": item.get('dinner', False),
-                    "acknowledged": item.get('acknowledged', True)
+                    "acknowledged": item.get('acknowledged', False)
                 }},
                 upsert=True
             )
