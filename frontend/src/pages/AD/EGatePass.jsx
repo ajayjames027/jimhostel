@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import API from '../../api';
 import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../context/AuthContext';
-import { QrCode, Send, ShieldCheck, Clock, CheckCircle, Trash2, Ban, Edit2 } from 'lucide-react';
+import { QrCode, Send, ShieldCheck, Clock, CheckCircle, Trash2, Ban, Edit2, XCircle } from 'lucide-react';
 
 const EGatePass = () => {
   const { showToast } = useToast();
@@ -57,6 +57,14 @@ const EGatePass = () => {
             loadData();
         } catch(e) { showToast('Error disabling', 'error'); }
     }
+  };
+
+  const setStatus = async (id, status) => {
+      try {
+          await API.put(`/egate-pass/${id}`, { status });
+          showToast(`Pass marked as ${status}.`, 'success');
+          loadData();
+      } catch(e) { showToast('Error updating status', 'error'); }
   };
 
   const deletePass = async (id) => {
@@ -177,25 +185,40 @@ const EGatePass = () => {
                            </div>
                            
                            <div className="flex flex-col items-end justify-center gap-1.5 shrink-0 opacity-100 group-hover:opacity-100 transition-opacity">
-                               <span className={`px-2.5 py-1 rounded-md text-[9px] font-extrabold uppercase tracking-wider mb-2 ${!isExpired ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-50 text-rose-500'}`}>
-                                 {p.status === 'Disabled' ? 'Revoked' : !isExpired ? 'Active' : 'Expired'}
+                               <span className={`px-2.5 py-1 rounded-md text-[9px] font-extrabold uppercase tracking-wider mb-2 ${p.status === 'Disabled' || p.status === 'Rejected' ? 'bg-rose-50 text-rose-500' : p.status === 'Pending' ? 'bg-amber-100 text-amber-700' : !isExpired ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-50 text-rose-500'}`}>
+                                 {p.status === 'Disabled' ? 'Revoked' : p.status === 'Rejected' ? 'Rejected' : p.status === 'Pending' ? 'Pending Request' : !isExpired ? 'Active' : 'Expired'}
                                </span>
                                
-                               <div className="flex items-center gap-1">
-                                 <button onClick={()=>populateEdit(p)} className="p-1.5 bg-gray-50 hover:bg-emerald-50 text-emerald-600 rounded shadow-sm border border-gray-200 transition-colors tooltip-trigger relative">
-                                    <Edit2 className="w-3.5 h-3.5" />
-                                 </button>
-                                 
-                                 {!isExpired && p.status === 'Active' && (
-                                    <button onClick={()=>revokePass(p._id)} className="p-1.5 bg-gray-50 hover:bg-amber-50 text-amber-600 rounded shadow-sm border border-gray-200 transition-colors">
-                                        <Ban className="w-3.5 h-3.5" />
-                                    </button>
+                               <div className="flex flex-wrap justify-end items-center gap-1">
+                                 {p.status === 'Pending' && (
+                                     <>
+                                        <button onClick={()=>setStatus(p._id, 'Active')} className="px-3 py-1 bg-emerald-500 hover:bg-emerald-600 text-white rounded shadow-sm transition-colors text-[10px] font-bold uppercase flex items-center gap-1">
+                                            <CheckCircle className="w-3 h-3" /> Approve
+                                        </button>
+                                        <button onClick={()=>setStatus(p._id, 'Rejected')} className="px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded shadow-sm transition-colors text-[10px] font-bold uppercase flex items-center gap-1">
+                                            <XCircle className="w-3 h-3" /> Deny
+                                        </button>
+                                     </>
                                  )}
 
-                                 {(user.role === 'Admin' || user.role === 'AD') && (
-                                   <button onClick={()=>deletePass(p._id)} className="p-1.5 bg-gray-50 hover:bg-rose-50 text-rose-600 rounded shadow-sm border border-gray-200 transition-colors">
-                                       <Trash2 className="w-3.5 h-3.5"/>
-                                   </button>
+                                 {p.status !== 'Pending' && (
+                                    <>
+                                       <button onClick={()=>populateEdit(p)} className="p-1.5 bg-gray-50 hover:bg-emerald-50 text-emerald-600 rounded shadow-sm border border-gray-200 transition-colors tooltip-trigger relative">
+                                          <Edit2 className="w-3.5 h-3.5" />
+                                       </button>
+                                       
+                                       {!isExpired && p.status === 'Active' && (
+                                          <button onClick={()=>revokePass(p._id)} className="p-1.5 bg-gray-50 hover:bg-amber-50 text-amber-600 rounded shadow-sm border border-gray-200 transition-colors">
+                                              <Ban className="w-3.5 h-3.5" />
+                                          </button>
+                                       )}
+      
+                                       {(user.role === 'Admin' || user.role === 'AD') && (
+                                         <button onClick={()=>deletePass(p._id)} className="p-1.5 bg-gray-50 hover:bg-rose-50 text-rose-600 rounded shadow-sm border border-gray-200 transition-colors">
+                                             <Trash2 className="w-3.5 h-3.5"/>
+                                         </button>
+                                       )}
+                                    </>
                                  )}
                                </div>
                            </div>

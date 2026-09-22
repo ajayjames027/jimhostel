@@ -1413,23 +1413,28 @@ def manage_egate_pass(current_user):
         return jsonify(passes)
 
     if request.method == 'POST':
-        if current_user['role'] not in ['AD', 'Admin']:
+        if current_user['role'] not in ['AD', 'Admin', 'Student']:
             return jsonify({'message': 'Unauthorized'}), 403
             
         data = request.json
+        
+        # If student creates it, it defaults to Pending
+        is_student = current_user['role'] == 'Student'
+        pass_status = "Pending" if is_student else "Active"
+        target_student_id = current_user['username'] if is_student else data.get("student_id")
         new_pass = {
             "_id": f"egp_{os.urandom(6).hex()}",
-            "student_id": data.get("student_id"),
+            "student_id": target_student_id,
             "date": data.get("date"),
             "out_time": data.get("out_time"),
             "in_time": data.get("in_time"),
             "reason": data.get("reason"),
-            "status": "Active",
+            "status": pass_status,
             "created_by": current_user['username'],
             "created_at": datetime.datetime.utcnow().isoformat()
         }
         db["egate_passes"].insert_one(new_pass)
-        log_action(current_user['_id'], current_user['username'], "Generate EGate Pass", f"Generated pass for {data.get('student_id')}")
+        log_action(current_user['_id'], current_user['username'], "Request/Generate EGate Pass", f"Pass for {target_student_id}")
         return jsonify(new_pass), 201
 
 @app.route('/api/egate-pass/<pass_id>', methods=['DELETE', 'PUT'])

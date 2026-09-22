@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import API from '../../api';
 import { useAuth } from '../../context/AuthContext';
-import { useToast } from '../../context/ToastContext';
-import { ShieldCheck, Clock, CheckCircle, Ban, QrCode } from 'lucide-react';
+import { ShieldCheck, Clock, CheckCircle, Ban, QrCode, Send, PlusCircle } from 'lucide-react';
 
 const LiveClock = () => {
     const [time, setTime] = useState(new Date());
@@ -29,6 +28,14 @@ const MyGatePasses = () => {
   const [passes, setPasses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedPass, setSelectedPass] = useState(null);
+  const [isRequesting, setIsRequesting] = useState(false);
+
+  const [form, setForm] = useState({ 
+    date: new Date().toISOString().split('T')[0], 
+    out_time: '', 
+    in_time: '', 
+    reason: '' 
+  });
 
   const loadData = async () => {
     setLoading(true);
@@ -43,6 +50,19 @@ const MyGatePasses = () => {
 
   useEffect(() => { loadData(); }, []);
 
+  const requestPass = async (e) => {
+    e.preventDefault();
+    try {
+      await API.post('/egate-pass', form);
+      showToast('Express pass requested successfully! Waiting for AD approval.', 'success');
+      setForm({ ...form, out_time: '', in_time: '', reason: '' });
+      setIsRequesting(false);
+      loadData();
+    } catch (e) {
+      showToast('Error requesting pass', 'error');
+    }
+  };
+
   return (
     <div className="space-y-8 animate-fade-in relative z-0">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -52,7 +72,44 @@ const MyGatePasses = () => {
           </h2>
           <p className="text-gray-500 text-xs mt-1">View your short-term Outpasses generated directly by your AD.</p>
         </div>
+        <div className="flex items-center gap-3">
+          <button onClick={() => setIsRequesting(!isRequesting)} className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl font-extrabold text-sm shadow-md flex items-center gap-2 transition-all">
+             {isRequesting ? <Ban className="w-4 h-4"/> : <PlusCircle className="w-4 h-4"/>} 
+             {isRequesting ? "Cancel Request" : "Request Pass"}
+          </button>
+        </div>
       </div>
+
+      {isRequesting && (
+         <div className="bg-white p-6 rounded-2xl shadow-lg border-2 border-emerald-500/20 animate-scale-in">
+            <h3 className="font-bold text-gray-800 mb-4 border-b border-gray-100 pb-3 flex items-center gap-2">
+               <ShieldCheck className="w-4 h-4 text-emerald-500" /> Request Express Outpass
+            </h3>
+            <form onSubmit={requestPass} className="space-y-4">
+               <div>
+                  <label className="block text-xs font-bold text-gray-500 mb-1.5 uppercase tracking-widest">Date</label>
+                  <input type="date" required value={form.date} onChange={e=>setForm({...form, date: e.target.value})} min={new Date().toISOString().split('T')[0]} className="w-full px-3 py-2.5 border border-gray-200 rounded-xl bg-white text-sm font-medium focus:ring-2 ring-emerald-500/20 outline-none transition-all" />
+               </div>
+               <div className="grid grid-cols-2 gap-3">
+                   <div>
+                      <label className="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-widest">Expected Out Time</label>
+                      <input type="time" required value={form.out_time} onChange={e=>setForm({...form, out_time: e.target.value})} className="w-full px-3 py-2.5 border border-gray-200 rounded-xl bg-white text-sm font-medium focus:ring-2 ring-emerald-500/20 outline-none transition-all" />
+                   </div>
+                   <div>
+                      <label className="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase tracking-widest">Expected In Time</label>
+                      <input type="time" required value={form.in_time} onChange={e=>setForm({...form, in_time: e.target.value})} className="w-full px-3 py-2.5 border border-gray-200 rounded-xl bg-white text-sm font-medium focus:ring-2 ring-emerald-500/20 outline-none transition-all" />
+                   </div>
+               </div>
+               <div>
+                  <label className="block text-xs font-bold text-gray-500 mb-1.5 uppercase tracking-widest">Reason</label>
+                  <textarea required value={form.reason} onChange={e=>setForm({...form, reason: e.target.value})} rows="2" className="w-full px-3 py-2.5 border border-gray-200 rounded-xl bg-white text-sm font-medium focus:ring-2 ring-emerald-500/20 outline-none transition-all resize-none" placeholder="E.g., Medical, Stationery, etc." />
+               </div>
+               <button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3 rounded-xl font-extrabold text-sm shadow-xl shadow-emerald-500/20 flex justify-center items-center gap-2 transition-all mt-2">
+                  <Send className="w-4 h-4"/> Submit Request to AD
+               </button>
+            </form>
+         </div>
+      )}
 
       <div className="premium-card p-6 min-h-[50vh]">
          {loading ? (
@@ -89,8 +146,8 @@ const MyGatePasses = () => {
                               <p className="text-sm font-extrabold text-gray-800 leading-snug">"{p.reason}"</p>
                               
                               <div className="mt-4 flex items-center gap-3">
-                                 <span className={`px-2.5 py-1 rounded-md text-[9px] font-extrabold uppercase tracking-wider ${p.status === 'Disabled' ? 'bg-rose-50 text-rose-500' : !isExpired ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-50 text-rose-500'}`}>
-                                     {p.status === 'Disabled' ? 'Revoked' : !isExpired ? 'Active' : 'Expired'}
+                                 <span className={`px-2.5 py-1 rounded-md text-[9px] font-extrabold uppercase tracking-wider ${p.status === 'Disabled' ? 'bg-rose-50 text-rose-500' : p.status === 'Pending' ? 'bg-amber-100 text-amber-700' : !isExpired ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-50 text-rose-500'}`}>
+                                     {p.status === 'Disabled' ? 'Revoked' : p.status === 'Pending' ? 'Pending Approval' : !isExpired ? 'Active' : 'Expired'}
                                  </span>
                                  {!isExpired && p.status === 'Active' && (
                                      <button onClick={() => setSelectedPass(p)} className="px-3 py-1 bg-gray-900 text-white rounded-md text-[10px] font-extrabold uppercase flex items-center gap-1 hover:bg-gray-800 transition-colors shadow-sm">
