@@ -4,6 +4,24 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { ShieldCheck, Clock, CheckCircle, Ban, QrCode } from 'lucide-react';
 
+const LiveClock = () => {
+    const [time, setTime] = useState(new Date());
+    useEffect(() => {
+        const timer = setInterval(() => setTime(new Date()), 1000);
+        return () => clearInterval(timer);
+    }, []);
+    return (
+        <div className="bg-gray-900 border-2 border-gray-800 text-white rounded-xl p-3 my-4 w-full text-center shadow-lg relative overflow-hidden group">
+            <div className="absolute top-0 left-0 w-12 h-[200%] bg-white/10 rotate-45 transform -translate-x-[150%] -translate-y-1/2 group-hover:translate-x-[500%] transition-transform duration-[2000ms] ease-in-out pointer-events-none"></div>
+            <p className="font-mono text-3xl font-black tracking-widest text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.3)]">{time.toLocaleTimeString('en-US', { hour12: true })}</p>
+            <p className="text-[9px] uppercase tracking-widest text-gray-400 mt-1.5 flex items-center justify-center gap-1.5">
+               <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>
+               Live Security Verification
+            </p>
+        </div>
+    );
+};
+
 const MyGatePasses = () => {
   const { showToast } = useToast();
   const { user } = useAuth();
@@ -125,11 +143,13 @@ const MyGatePasses = () => {
                   {selectedPass.room_number ? `Room ${selectedPass.room_number}` : 'N/A'}
                 </p>
 
-                <div className="w-full h-px bg-gray-100 my-4 border-dashed border"></div>
+                <div className="w-full h-px bg-gray-100 my-2 border-dashed border"></div>
+                
+                {!isExpired && <LiveClock />}
 
-                <div className={`p-3 rounded-2xl ${!isExpired ? 'bg-emerald-50 border-2 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.3)] glow-pulse' : 'bg-rose-50 border-2 border-rose-500 opacity-60'} relative`}>
+                <div className={`p-3 rounded-2xl ${!isExpired ? 'bg-emerald-50 border-2 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.3)]' : 'bg-rose-50 border-2 border-rose-500 opacity-60'} relative ${!isExpired ? 'mt-2' : 'mt-6'}`}>
                     {isExpired && <div className="absolute inset-0 z-10 flex items-center justify-center backdrop-blur-[2px]"><span className="bg-rose-600 text-white font-extrabold px-3 py-1 rounded text-lg rotate-[-15deg] shadow-lg">INVALID</span></div>}
-                    <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${baseQRData}`} alt="QR" className={`rounded-lg mix-blend-multiply ${isExpired ? 'opacity-30' : ''}`} />
+                    <img src={`https://api.qrserver.com/v1/create-qr-code/?size=${!isExpired ? '100x100' : '150x150'}&data=${baseQRData}`} alt="QR" className={`rounded-lg mix-blend-multiply ${isExpired ? 'opacity-30' : ''}`} />
                 </div>
 
                 <p className="text-[9px] text-gray-400 mt-2 font-mono font-semibold">{baseQRData}</p>
