@@ -1477,6 +1477,7 @@ def manage_late_entries(current_user):
     if request.method == 'GET':
         late_entries = list(db["late_entries"].find().sort("created_at", -1))
         for le in late_entries:
+            le["_id"] = str(le["_id"])
             student = db["students"].find_one({"_id": le["student_id"]})
             le["student_name"] = student["name"] if student else "Unknown"
             le["room_number"] = student["room_number"] if student else ""
