@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import API from '../../api';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import { Coffee, Sun, Moon, Calendar, Send, Info, Clock, CheckCircle2, XCircle, Wrench, Camera, Save, Lock, AlertCircle } from 'lucide-react';
+import { Coffee, Sun, Moon, Calendar, Send, Info, Clock, CheckCircle2, XCircle, Wrench, Camera, Save, Lock, AlertCircle, QrCode, ScanLine } from 'lucide-react';
 
 const StudentDashboard = () => {
   const { user } = useAuth();
@@ -22,6 +22,22 @@ const StudentDashboard = () => {
   const [mustChangePwd, setMustChangePwd] = useState(user?.requires_password_change === true);
   const [pwdForm, setPwdForm] = useState({ newPwd: '', confirmPwd: '' });
   const [pwdLoading, setPwdLoading] = useState(false);
+
+  // E-Gate Pass Logic
+  const [selectedGatePass, setSelectedGatePass] = useState(null);
+
+  const getGatePassStatus = (leave) => {
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const from = new Date(leave.leave_from);
+    from.setHours(0,0,0,0);
+    const to = new Date(leave.leave_to);
+    to.setHours(23,59,59,999);
+
+    if (new Date() > to) return 'EXPIRED'; 
+    if (new Date() < from) return 'UPCOMING';
+    return 'ACTIVE';
+  };
 
   const handleForcePwdChange = async (e) => {
     e.preventDefault();
@@ -298,16 +314,26 @@ const StudentDashboard = () => {
                  ) : (
                      <div className="space-y-3 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
                          {myLeaves.map(l => (
-                             <div key={l._id} className="flex justify-between items-center p-3 bg-gray-50/50 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors">
+                             <div key={l._id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 p-3 bg-gray-50/50 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors">
                                 <div>
                                    <p className="font-extrabold text-xs text-gray-700 tracking-wide">{new Date(l.leave_from).toLocaleDateString('en-GB')} <span className="opacity-40">→</span> {new Date(l.leave_to).toLocaleDateString('en-GB')}</p>
                                 </div>
-                                <span className={`px-2.5 py-1 text-[9px] uppercase font-extrabold rounded-md flex shrink-0 ${
-                                    l.status === 'Approved' ? 'bg-emerald-50 text-emerald-600' :
-                                    l.status === 'Rejected' ? 'bg-rose-50 text-rose-600' : 'bg-amber-50 text-amber-600'
-                                }`}>
-                                   {l.status}
-                                </span>
+                                <div className="flex items-center gap-2">
+                                  <span className={`px-2.5 py-1 text-[9px] uppercase font-extrabold rounded-md flex shrink-0 ${
+                                      l.status === 'Approved' ? 'bg-emerald-50 text-emerald-600' :
+                                      l.status === 'Rejected' ? 'bg-rose-50 text-rose-600' : 'bg-amber-50 text-amber-600'
+                                  }`}>
+                                     {l.status}
+                                  </span>
+                                  {l.status === 'Approved' && (
+                                     <button 
+                                        onClick={() => setSelectedGatePass(l)}
+                                        className="px-2.5 py-1 text-[9px] uppercase font-extrabold bg-gray-900 text-white rounded-md hover:bg-gray-800 transition-all flex items-center gap-1 active:scale-95 shadow-sm"
+                                     >
+                                        <QrCode className="w-3 h-3" /> E-Pass
+                                     </button>
+                                  )}
+                                </div>
                              </div>
                          ))}
                      </div>
@@ -347,6 +373,81 @@ const StudentDashboard = () => {
           </div>
         </div>
       )}
+
+      {selectedGatePass && (() => {
+        const gpStatus = getGatePassStatus(selectedGatePass);
+        const isExpired = gpStatus === 'EXPIRED';
+        const isUpcoming = gpStatus === 'UPCOMING';
+        const isActive = gpStatus === 'ACTIVE';
+
+        const baseQRData = `JIM-GATE-PASS-${selectedGatePass._id}`;
+
+        return (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 animate-fade-in">
+            <div className="bg-white rounded-3xl w-full max-w-xs shadow-2xl overflow-hidden relative border border-white/20 scale-enter">
+              
+              {/* Header Ribbon */}
+              <div className={`p-4 text-center ${isActive ? 'bg-emerald-500' : isExpired ? 'bg-rose-500' : 'bg-blue-500'}`}>
+                <h2 className="text-white font-extrabold tracking-widest uppercase text-sm">Official E-Gate Pass</h2>
+                <p className="text-white/80 text-[10px] font-bold uppercase mt-0.5">JIM Boys Hostel</p>
+              </div>
+
+              {/* Body */}
+              <div className="p-6 flex flex-col items-center relative">
+                
+                <div className={`absolute top-4 right-4 px-2.5 py-0.5 text-[9px] font-extrabold uppercase rounded-full ${isActive ? 'bg-emerald-100 text-emerald-700 animate-pulse' : isExpired ? 'bg-rose-100 text-rose-700' : 'bg-blue-100 text-blue-700'}`}>
+                    {gpStatus}
+                </div>
+
+                <div className="w-16 h-16 rounded-full bg-gray-100 mb-3 flex items-center justify-center overflow-hidden border-2 border-gray-100">
+                    {myProfile?.photo ? <img src={myProfile.photo} className="w-full h-full object-cover" alt="Profile" /> : <span className="font-bold text-gray-400 text-xl">{user.name.charAt(0)}</span>}
+                </div>
+
+                <h3 className="font-extrabold text-lg text-gray-900">{user.name}</h3>
+                <p className="text-[11px] font-extrabold text-gray-500 uppercase tracking-widest mt-0.5">
+                  {myProfile?.room_number ? `Room ${myProfile.room_number}` : ''} • {myProfile?.course || 'No Course'}
+                </p>
+
+                <div className="w-full h-px bg-gray-100 my-4 border-dashed border"></div>
+
+                {/* QR Code Segment */}
+                <div className={`p-3 rounded-2xl ${isActive ? 'bg-emerald-50 border-2 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.3)] glow-pulse' : isExpired ? 'bg-rose-50 border-2 border-rose-500 opacity-60' : 'bg-blue-50 border-2 border-blue-400'} relative`}>
+                    {isExpired && <div className="absolute inset-0 z-10 flex items-center justify-center backdrop-blur-[2px]"><span className="bg-rose-600 text-white font-extrabold px-3 py-1 rounded text-lg rotate-[-15deg] shadow-lg">INVALID</span></div>}
+                    <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${baseQRData}`} alt="QR" className={`rounded-lg mix-blend-multiply ${isExpired ? 'opacity-30' : ''}`} />
+                </div>
+
+                <p className="text-[9px] text-gray-400 mt-2 font-mono font-semibold">{baseQRData}</p>
+
+                <div className="w-full bg-gray-50 rounded-xl p-3 mt-4 space-y-2 border border-gray-100">
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-gray-500 font-bold">Valid From</span>
+                      <span className="font-extrabold text-gray-800">{new Date(selectedGatePass.leave_from).toLocaleDateString('en-GB')}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-gray-500 font-bold">Valid Until</span>
+                      <span className="font-extrabold text-gray-800">{new Date(selectedGatePass.leave_to).toLocaleDateString('en-GB')}</span>
+                    </div>
+                </div>
+
+                {isActive && (
+                    <p className="text-[11px] text-emerald-600 font-bold mt-4 animate-pulse flex items-center gap-1 opacity-80">
+                      <ScanLine className="w-3.5 h-3.5" /> Flash this screen to security
+                    </p>
+                )}
+                {isExpired && (
+                    <p className="text-[11px] text-rose-600 font-bold mt-4 flex items-center gap-1 opacity-80">
+                      <AlertCircle className="w-3.5 h-3.5" /> Pass expired. Return immediately.
+                    </p>
+                )}
+
+                <button onClick={() => setSelectedGatePass(null)} className="mt-6 w-full py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-extrabold rounded-xl text-xs transition-colors">
+                    Close Pass
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 };
