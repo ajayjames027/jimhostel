@@ -32,6 +32,7 @@ import StudentProfile from './pages/Shared/StudentProfile';
 import LateEntryRegister from './pages/Shared/LateEntryRegister';
 import LeaveManagement from './pages/Shared/LeaveManagement';
 import MessPoll from './pages/AD/MessPoll';
+import MessMenu from './pages/Shared/MessMenu';
 import MaintenanceRegistry from './pages/AD/MaintenanceRegistry';
 import Announcements from './pages/Shared/Announcements';
 import StudentSettings from './pages/Student/StudentSettings';
@@ -217,6 +218,11 @@ function App() {
               <Route path="leave-management" element={
                 <RoleGuard allowedRoles={['Admin', 'AD', 'Director']}>
                   <LeaveManagement />
+                </RoleGuard>
+              } />
+              <Route path="mess-menu" element={
+                <RoleGuard allowedRoles={['Admin', 'AD', 'Director', 'Student']}>
+                  <MessMenu />
                 </RoleGuard>
               } />
             </Route>

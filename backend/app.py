@@ -1795,6 +1795,94 @@ def get_analytics(current_user):
     })
 
 # =====================================================================
+# MESS MENU MODULE
+# =====================================================================
+
+@app.route('/api/mess-menu', methods=['GET'])
+@token_required
+def get_mess_menu(current_user):
+    db = get_db()
+    menu = db["settings"].find_one({"_id": "mess_menu"})
+    if not menu:
+        default_menu = {
+            "_id": "mess_menu",
+            "menu": {
+                "Monday": {
+                    "breakfast": "Dosai, Sambar, Tomato Chutney, Coffee, Boiled Egg",
+                    "refreshment_am": "Mix Veg Soup, Corn Flakes",
+                    "lunch": "Rice, Chicken Kuzhambu, Sambar, Rasam, Butter Milk, 1 Vegetable, Kadalai Mittai, Mushroom Fry",
+                    "refreshment_pm": "Kuzhi Paniyaram Tea, Coffee.",
+                    "dinner": "Chappathi, Mixed Veg Kuruma, Milk, Banana."
+                },
+                "Tuesday": {
+                    "breakfast": "Poori, Channa / Potato Masal, Coconut Chutney, Coffee, Boiled Egg",
+                    "refreshment_am": "Lemon Juice, Boiled Peanut",
+                    "lunch": "Rice, Sambar, Rasam, Butter Milk, 2 Vegetables, Payasam.",
+                    "refreshment_pm": "Sandwich, Sukkumalli Coffee",
+                    "dinner": "Oothappam, Coconut Chutney, Garlic Chutney, Milk, Banana."
+                },
+                "Wednesday": {
+                    "breakfast": "Idly, Kesari, Sambar, Coconut Chutney, Coffee, Boiled Egg",
+                    "refreshment_am": "Coffee, Tea, Paruppu Vadai",
+                    "lunch": "3 Types Of Variety Rice, Egg Curry, Paruppu Thuvaiyal, 1 Vegtable, Ice Cream (Arun ₹10), Aalu Gobi Gravy.",
+                    "refreshment_pm": "Mixture, Rose Milk",
+                    "dinner": "Parotta, Chicken Kuruma, Veg Kuruma, Milk, Banana."
+                },
+                "Thursday": {
+                    "breakfast": "Ghee Pongal, Vadai, Sambar, Coconut Chutney, Coffee.",
+                    "refreshment_am": "Badam Milk, Samosa.",
+                    "lunch": "Rice, Egg Kulambu, Rasam, Butter Milk, 1 Vegtables, Fried Chicken, Gobi 65",
+                    "refreshment_pm": "Corn, Tea,Coffee",
+                    "dinner": "Onion Oothappam, Tomato Kurma, Coconut Chutney, Milk, Banana."
+                },
+                "Friday": {
+                    "breakfast": "Egg / Masal Dosa, Sambar, Onion Tomato Chutney, Coffee",
+                    "refreshment_am": "Tea, Coffee, Urad Vadai, Coconut Chutney",
+                    "lunch": "Rice, Paruppu Podi Ghee, Mor Kulambu, Rasam, Butter Milk, 2 Vegtables, Appalam, Payasam.",
+                    "refreshment_pm": "Pav Bhaji, Lemon Tea",
+                    "dinner": "Idly Sambar, Coconut Chutney, Milk, Banana"
+                },
+                "Saturday": {
+                    "breakfast": "Idiyappam, Coconut Milk, Kuruma, Coffee, Bolied Egg",
+                    "refreshment_am": "Butter Milk, Boiled Channa",
+                    "lunch": "Puloa, Mutton gravy, Panneer gravy, Onion Raitha Mysore Pak",
+                    "refreshment_pm": "Bajji, Coconut Chutney Tea, Coffee.",
+                    "dinner": "Chappathi, Chicken Kuruma, Milk, Banana."
+                },
+                "Sunday": {
+                    "breakfast": "Bun, Egg Kurma, Coffee",
+                    "refreshment_am": "",
+                    "lunch": "Veg Biryani, Raitha, Chicken Gravy, Veg Curry, Curd Rice.",
+                    "refreshment_pm": "",
+                    "dinner": "Rice, Rasam, Omelette, chips, Milk, Banana."
+                }
+            },
+            "footer": "Common: Chilli Vadagam, Clusterbean Vathal, (Rice Vadagam, Colour Vadagam, Wheel Chips(Any One)) | Variety Rice: Tomato, lemon, Curd / Sambar, Tamarind, Curd"
+        }
+        db["settings"].insert_one(default_menu)
+        return jsonify(default_menu)
+    return jsonify(menu)
+
+@app.route('/api/mess-menu', methods=['PUT'])
+@token_required
+@roles_required('Admin', 'AD')
+def update_mess_menu(current_user):
+    data = request.json
+    db = get_db()
+    
+    db["settings"].update_one(
+        {"_id": "mess_menu"},
+        {"$set": {
+            "menu": data.get("menu", {}),
+            "footer": data.get("footer", "")
+        }},
+        upsert=True
+    )
+    
+    log_action(current_user['_id'], current_user['username'], "Update Mess Menu", "Updated the digital mess menu")
+    return jsonify({'message': 'Mess Menu successfully broadcasted.'})
+
+# =====================================================================
 # DASHBOARD SUMMARY CARDS
 # =====================================================================
 

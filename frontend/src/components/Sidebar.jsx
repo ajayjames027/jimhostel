@@ -20,7 +20,8 @@ import {
   Coffee,
   Wrench,
   MessageSquare,
-  Settings
+  Settings,
+  Utensils
 } from 'lucide-react';
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
@@ -40,6 +41,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     { to: '/late-entry', label: 'Late Entry Register', icon: BookOpen },
     { to: '/leave-management', label: 'Leave Management', icon: Calendar },
     { to: '/mess-poll', label: 'Mess Food Poll', icon: Coffee },
+    { to: '/mess-menu', label: 'Digital Mess Menu', icon: Utensils },
     { to: '/maintenance', label: 'Maintenance Issues', icon: Wrench },
     { to: '/feedback', label: 'Student Feedback', icon: MessageSquare },
     { to: '/reports', label: 'Download Reports', icon: FileSpreadsheet },
@@ -49,6 +51,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     { to: '/director', label: 'Director Dashboard', icon: LayoutDashboard },
     { to: '/defaulters', label: 'Defaulters List', icon: AlertTriangle },
     { to: '/leave-management', label: 'Leave Management', icon: Calendar },
+    { to: '/mess-menu', label: 'Digital Mess Menu', icon: Utensils },
     { to: '/feedback', label: 'Student Feedback', icon: MessageSquare },
     { to: '/reports', label: 'Download Reports', icon: FileSpreadsheet },
   ];
@@ -61,6 +64,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     { to: '/manage-accounts', label: 'User Accounts', icon: UserPlus },
     { to: '/leave-management', label: 'Leave Management', icon: Calendar },
     { to: '/mess-poll', label: 'Mess Food Poll', icon: Coffee },
+    { to: '/mess-menu', label: 'Digital Mess Menu', icon: Utensils },
     { to: '/maintenance', label: 'Maintenance Issues', icon: Wrench },
     { to: '/feedback', label: 'Student Feedback', icon: MessageSquare },
     { to: '/system-logs', label: 'System Logs', icon: FileText },
@@ -68,6 +72,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
 
   const studentLinks = [
     { to: '/student', label: 'My Dashboard', icon: LayoutDashboard },
+    { to: '/mess-menu', label: 'Digital Mess Menu', icon: Utensils },
     { to: '/student-settings', label: 'Requests & Settings', icon: Settings }
   ];
 
