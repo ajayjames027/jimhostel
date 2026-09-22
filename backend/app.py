@@ -1098,12 +1098,48 @@ def manage_student(current_user, student_id):
         # Delete related attendance and leaves
         db["attendance"].delete_many({"student_id": student_id})
         db["leave_requests"].delete_many({"student_id": student_id})
+        db["late_entries"].delete_many({"student_id": student_id})
+        db["users"].delete_one({"username": student_id})
         
         # Decrement room occupied
         db["rooms"].update_one({"_id": room_num}, {"$inc": {"occupied": -1, "available_beds": 1}})
         
         log_action(current_user['_id'], current_user['username'], "Delete Student", f"Deleted Student {student['name']}")
         return jsonify({'message': f"Student {student['name']} removed from system."})
+
+@app.route('/api/admin/academic-transition', methods=['POST'])
+@token_required
+@roles_required('Admin')
+def academic_transition(current_user):
+    db = get_db()
+    data = request.json
+    action = data.get('action')
+    
+    if action == 'graduate':
+        second_years = list(db["students"].find({"year": "II"}))
+        count = 0
+        for student in second_years:
+            s_id = student["_id"]
+            room = student["room_number"]
+            db["students"].delete_one({"_id": s_id})
+            db["users"].delete_one({"username": s_id})
+            db["attendance"].delete_many({"student_id": s_id})
+            db["leave_requests"].delete_many({"student_id": s_id})
+            db["late_entries"].delete_many({"student_id": s_id})
+            
+            db["rooms"].update_one({"_id": room}, {"$inc": {"occupied": -1, "available_beds": 1}})
+            count += 1
+            
+        log_action(current_user['_id'], current_user['username'], "Academic Transition", f"Graduated {count} second-year students")
+        return jsonify({'message': f'Successfully graduated {count} second-year students and cleared their rooms.'}), 200
+        
+    elif action == 'promote':
+        result = db["students"].update_many({"year": "I"}, {"$set": {"year": "II", "course": "II MBA"}})
+        count = result.modified_count
+        log_action(current_user['_id'], current_user['username'], "Academic Transition", f"Promoted {count} first-year students")
+        return jsonify({'message': f'Successfully promoted {count} students to II Year.'}), 200
+        
+    return jsonify({'message': 'Invalid action'}), 400
 
 # =====================================================================
 # ATTENDANCE MODULE

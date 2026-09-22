@@ -17,8 +17,10 @@ const StudentManagement = () => {
   // Modal states
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showAcademicModal, setShowAcademicModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [importing, setImporting] = useState(false);
+  const [transitioning, setTransitioning] = useState(false);
   const fileInputRef = useRef(null);
 
   // Form states
@@ -204,6 +206,27 @@ const StudentManagement = () => {
     }
   };
 
+  const handleAcademicCycle = async (actionType) => {
+    let msg = actionType === 'graduate' 
+      ? 'Are you SURE you want to DELETE all Second Year (II yr) students and completely clear their records/rooms?' 
+      : 'Are you SURE you want to PROMOTE all First Year (I yr) students to Second Year (II yr)?';
+      
+    if (!window.confirm(msg)) return;
+    
+    setTransitioning(true);
+    try {
+      const res = await API.post('/admin/academic-transition', { action: actionType });
+      showToast(res.data.message, 'success');
+      setShowAcademicModal(false);
+      fetchStudents();
+      fetchRooms();
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Error processing academic transition', 'error');
+    } finally {
+      setTransitioning(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header section */}
@@ -233,6 +256,11 @@ const StudentManagement = () => {
                 <Upload className="w-4 h-4" /> {importing ? 'Importing...' : 'Bulk Import'}
             </button>
             <div className="w-px h-8 bg-gray-200 mx-1 hidden sm:block"></div>
+            <button
+                onClick={() => setShowAcademicModal(true)}
+                className="flex items-center gap-2 px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold text-xs shadow-md transition-all">
+                <ClipboardList className="w-4 h-4" /> Academic Cycle
+            </button>
             <button
                 onClick={() => window.open(API.defaults.baseURL + '/reports/students-export?format=excel&token=' + localStorage.getItem('jim_token'), '_blank')} 
                 className="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold text-xs shadow-md transition-all">
@@ -566,6 +594,56 @@ const StudentManagement = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Academic Transition Modal */}
+      {showAcademicModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in px-4">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full border border-gray-100 shadow-2xl scale-enter">
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="font-extrabold text-gray-800 text-xl flex items-center gap-2">
+                <ClipboardList className="w-6 h-6 text-amber-500" /> Academic Transition
+              </h3>
+              <button onClick={() => !transitioning && setShowAcademicModal(false)} className="p-1 rounded-lg hover:bg-gray-100 text-gray-400">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <p className="text-gray-500 text-sm mb-6 pb-6 border-b border-gray-100">
+              Run these bulk scripts selectively at the end of every academic year to effortlessly cycle the database.
+            </p>
+
+            <div className="space-y-4">
+              <div className="p-4 rounded-xl border border-rose-200 bg-rose-50 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                  <h4 className="font-bold text-rose-800 text-sm">Step 1: Graduate 2nd Year</h4>
+                  <p className="text-xs text-rose-600 mt-1">Permanently deletes all II Year students, revokes their logins, and frees their rooms.</p>
+                </div>
+                <button 
+                  onClick={() => handleAcademicCycle('graduate')}
+                  disabled={transitioning}
+                  className={`shrink-0 px-4 py-2 shadow-sm ${transitioning ? 'bg-gray-300' : 'bg-rose-600 hover:bg-rose-700'} text-white font-bold rounded-lg text-xs`}
+                >
+                  {transitioning ? 'Processing...' : 'Run Graduation'}
+                </button>
+              </div>
+
+              <div className="p-4 rounded-xl border border-blue-200 bg-blue-50 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                  <h4 className="font-bold text-blue-800 text-sm">Step 2: Promote 1st Year</h4>
+                  <p className="text-xs text-blue-600 mt-1">Updates all remaining I Year students to II Year simultaneously.</p>
+                </div>
+                <button 
+                  onClick={() => handleAcademicCycle('promote')}
+                  disabled={transitioning}
+                  className={`shrink-0 px-4 py-2 shadow-sm ${transitioning ? 'bg-gray-300' : 'bg-blue-600 hover:bg-blue-700'} text-white font-bold rounded-lg text-xs`}
+                >
+                  {transitioning ? 'Processing...' : 'Run Promotion'}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
