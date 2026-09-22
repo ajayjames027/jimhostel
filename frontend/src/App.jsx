@@ -37,6 +37,7 @@ import MaintenanceRegistry from './pages/AD/MaintenanceRegistry';
 import Announcements from './pages/Shared/Announcements';
 import StudentSettings from './pages/Student/StudentSettings';
 import FeedbackViewer from './pages/Shared/FeedbackViewer';
+import EGatePass from './pages/AD/EGatePass';
 
 // Guard for protected routes checking roles
 const RoleGuard = ({ allowedRoles, children }) => {
@@ -223,6 +224,11 @@ function App() {
               <Route path="mess-menu" element={
                 <RoleGuard allowedRoles={['Admin', 'AD', 'Director', 'Student']}>
                   <MessMenu />
+                </RoleGuard>
+              } />
+              <Route path="egate-pass" element={
+                <RoleGuard allowedRoles={['Admin', 'AD']}>
+                  <EGatePass />
                 </RoleGuard>
               } />
             </Route>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import API from '../../api';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import { Coffee, Sun, Moon, Calendar, Send, Info, Clock, CheckCircle2, XCircle, Wrench, Camera, Save, Lock, AlertCircle, QrCode, ScanLine } from 'lucide-react';
+import { Coffee, Sun, Moon, Calendar, Send, Info, Clock, CheckCircle2, XCircle, Wrench, Camera, Save, Lock, AlertCircle, QrCode, ScanLine, ShieldCheck } from 'lucide-react';
 
 const StudentDashboard = () => {
   const { user } = useAuth();
@@ -25,6 +25,10 @@ const StudentDashboard = () => {
 
   // E-Gate Pass Logic
   const [selectedGatePass, setSelectedGatePass] = useState(null);
+  
+  // Express Outpass Logic
+  const [activeExpressPass, setActiveExpressPass] = useState(null);
+  const [selectedExpressPass, setSelectedExpressPass] = useState(null);
 
   const getGatePassStatus = (leave) => {
     const today = new Date();
@@ -72,6 +76,10 @@ const StudentDashboard = () => {
         setAnnouncements(ares.data);
         const lres = await API.get(`/my-leaves`);
         setMyLeaves(lres.data);
+        const epRes = await API.get('/egate-pass');
+        // Get the latest active express pass that hasn't expired yet for today
+        const validPasses = epRes.data.filter(p => p.status === 'Active');
+        if (validPasses.length > 0) setActiveExpressPass(validPasses[0]);
       } catch(e) {}
     }
 
@@ -200,6 +208,24 @@ const StudentDashboard = () => {
                ))}
             </marquee>
          </div>
+      )}
+
+      {activeExpressPass && (
+        <div className="bg-emerald-500 rounded-3xl p-6 text-white shadow-xl shadow-emerald-500/20 border border-emerald-400 relative overflow-hidden flex flex-col md:flex-row justify-between items-center gap-4">
+           <div className="absolute top-0 right-0 right-0 w-32 h-32 bg-emerald-400 rounded-bl-full -mr-10 -mt-10 blur-xl opacity-50 pointer-events-none"></div>
+           <div className="relative z-10 flex items-center gap-4">
+              <div className="w-14 h-14 bg-emerald-400 rounded-2xl flex items-center justify-center border-4 border-emerald-300 shrink-0 shadow-inner">
+                 <ShieldCheck className="w-7 h-7 text-white" />
+              </div>
+              <div>
+                 <h3 className="font-extrabold text-xl tracking-wide flex items-center gap-2">Express Outpass Active <span className="flex w-2.5 h-2.5 rounded-full bg-white animate-pulse" /></h3>
+                 <p className="text-emerald-50 text-sm font-medium mt-0.5">Approved by AD for {activeExpressPass.out_time} - {activeExpressPass.in_time}</p>
+              </div>
+           </div>
+           <button onClick={() => setSelectedExpressPass(activeExpressPass)} className="relative z-10 bg-gray-900 hover:bg-gray-800 text-white px-6 py-3.5 rounded-xl font-extrabold text-sm transition-all shadow-lg shadow-gray-900/30 flex items-center gap-2 w-full md:w-auto justify-center">
+              <QrCode className="w-4 h-4" /> Open Digital Pass
+           </button>
+        </div>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -441,6 +467,81 @@ const StudentDashboard = () => {
                 )}
 
                 <button onClick={() => setSelectedGatePass(null)} className="mt-6 w-full py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-extrabold rounded-xl text-xs transition-colors">
+                    Close Pass
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {selectedExpressPass && (() => {
+        const [outH, outM] = selectedExpressPass.out_time.split(':');
+        const [inH, inM] = selectedExpressPass.in_time.split(':');
+        
+        const current = new Date();
+        const passIn = new Date(selectedExpressPass.date);
+        passIn.setHours(parseInt(inH), parseInt(inM), 0);
+        
+        const isExpired = current > passIn || selectedExpressPass.status !== 'Active';
+
+        const baseQRData = `JIM-EXPRESS-PASS-${selectedExpressPass._id}`;
+
+        return (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 animate-fade-in">
+            <div className="bg-white rounded-3xl w-full max-w-xs shadow-2xl overflow-hidden relative border border-white/20 scale-enter">
+              
+              <div className={`p-4 text-center ${!isExpired ? 'bg-emerald-500' : 'bg-rose-500'}`}>
+                <h2 className="text-white font-extrabold tracking-widest uppercase text-sm">Express Digital Pass</h2>
+                <p className="text-white/80 text-[10px] font-bold uppercase mt-0.5">JIM Boys Hostel</p>
+              </div>
+
+              <div className="p-6 flex flex-col items-center relative">
+                
+                <div className={`absolute top-4 right-4 px-2.5 py-0.5 text-[9px] font-extrabold uppercase rounded-full ${!isExpired ? 'bg-emerald-100 text-emerald-700 animate-pulse' : 'bg-rose-100 text-rose-700'}`}>
+                    {!isExpired ? 'ACTIVE' : 'EXPIRED'}
+                </div>
+
+                <div className="w-16 h-16 rounded-full bg-gray-100 mb-3 flex items-center justify-center overflow-hidden border-2 border-gray-100">
+                    {myProfile?.photo ? <img src={myProfile.photo} className="w-full h-full object-cover" alt="Profile" /> : <span className="font-bold text-gray-400 text-xl">{user.name.charAt(0)}</span>}
+                </div>
+
+                <h3 className="font-extrabold text-lg text-gray-900">{user.name}</h3>
+                <p className="text-[11px] font-extrabold text-gray-500 uppercase tracking-widest mt-0.5">
+                  {myProfile?.room_number ? `Room ${myProfile.room_number}` : ''} • {myProfile?.course || 'No Course'}
+                </p>
+
+                <div className="w-full h-px bg-gray-100 my-4 border-dashed border"></div>
+
+                <div className={`p-3 rounded-2xl ${!isExpired ? 'bg-emerald-50 border-2 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.3)] glow-pulse' : 'bg-rose-50 border-2 border-rose-500 opacity-60'} relative`}>
+                    {isExpired && <div className="absolute inset-0 z-10 flex items-center justify-center backdrop-blur-[2px]"><span className="bg-rose-600 text-white font-extrabold px-3 py-1 rounded text-lg rotate-[-15deg] shadow-lg">INVALID</span></div>}
+                    <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${baseQRData}`} alt="QR" className={`rounded-lg mix-blend-multiply ${isExpired ? 'opacity-30' : ''}`} />
+                </div>
+
+                <p className="text-[9px] text-gray-400 mt-2 font-mono font-semibold">{baseQRData}</p>
+
+                <div className="w-full bg-gray-50 rounded-xl p-3 mt-4 space-y-2 border border-gray-100">
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-gray-500 font-bold">Valid Date</span>
+                      <span className="font-extrabold text-gray-800">{new Date(selectedExpressPass.date).toLocaleDateString('en-GB')}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-gray-500 font-bold">Timing</span>
+                      <span className="font-extrabold text-gray-800">{selectedExpressPass.out_time} to {selectedExpressPass.in_time}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-xs border-t border-gray-200/60 pt-2 mt-2">
+                       <span className="text-gray-500 font-bold">Reason</span>
+                       <span className="font-bold text-gray-700 italic max-w-[120px] text-right truncate">"{selectedExpressPass.reason}"</span>
+                    </div>
+                </div>
+
+                <div className="w-full border-t border-gray-100 mt-4 pt-4 text-center">
+                   <p className="text-[9px] uppercase tracking-widest text-gray-400 font-bold mb-1">Digitally Signed By</p>
+                   <p className="font-serif italic text-emerald-800 font-medium text-sm">{selectedExpressPass.created_by === 'ad' ? 'Ajay James' : selectedExpressPass.created_by}</p>
+                   <p className="text-[10px] text-gray-500 font-semibold">{selectedExpressPass.created_by === 'ad' ? 'Assistant Director' : 'Administrator'}</p>
+                </div>
+
+                <button onClick={() => setSelectedExpressPass(null)} className="mt-6 w-full py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-extrabold rounded-xl text-xs transition-colors">
                     Close Pass
                 </button>
               </div>

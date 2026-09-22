@@ -1390,6 +1390,65 @@ def get_attendance_history(current_user):
     return jsonify(hydrated_records)
 
 # =====================================================================
+# EGATE PASS (SHORT TERM OUTPASS)
+# =====================================================================
+
+@app.route('/api/egate-pass', methods=['GET', 'POST'])
+@token_required
+def manage_egate_pass(current_user):
+    db = get_db()
+    
+    if request.method == 'GET':
+        if current_user['role'] == 'Student':
+            passes = list(db["egate_passes"].find({"student_id": current_user['username']}).sort("created_at", -1))
+        else:
+            passes = list(db["egate_passes"].find().sort("created_at", -1))
+            
+        for p in passes:
+            s_data = db["students"].find_one({"_id": p.get("student_id")})
+            if s_data:
+                p["student_name"] = s_data["name"]
+                p["room_number"] = s_data["room_number"]
+                p["photo"] = s_data.get("photo", "")
+        return jsonify(passes)
+
+    if request.method == 'POST':
+        if current_user['role'] not in ['AD', 'Admin']:
+            return jsonify({'message': 'Unauthorized'}), 403
+            
+        data = request.json
+        new_pass = {
+            "_id": f"egp_{os.urandom(6).hex()}",
+            "student_id": data.get("student_id"),
+            "date": data.get("date"),
+            "out_time": data.get("out_time"),
+            "in_time": data.get("in_time"),
+            "reason": data.get("reason"),
+            "status": "Active",
+            "created_by": current_user['username'],
+            "created_at": datetime.utcnow().isoformat()
+        }
+        db["egate_passes"].insert_one(new_pass)
+        log_action(current_user['_id'], current_user['username'], "Generate EGate Pass", f"Generated pass for {data.get('student_id')}")
+        return jsonify(new_pass), 201
+
+@app.route('/api/egate-pass/<pass_id>', methods=['DELETE', 'PUT'])
+@token_required
+@roles_required('Admin', 'AD')
+def modify_egate_pass(current_user, pass_id):
+    db = get_db()
+    if request.method == 'DELETE':
+        db["egate_passes"].delete_one({"_id": pass_id})
+        return jsonify({'message': 'Pass removed'})
+    if request.method == 'PUT':
+        data = request.json
+        db["egate_passes"].update_one(
+            {"_id": pass_id},
+            {"$set": {"status": data.get("status")}}
+        )
+        return jsonify({'message': f'Pass {data.get("status")}'})
+
+# =====================================================================
 # LEAVE MANAGEMENT
 # =====================================================================
 

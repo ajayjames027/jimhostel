@@ -21,7 +21,8 @@ import {
   Wrench,
   MessageSquare,
   Settings,
-  Utensils
+  Utensils,
+  ShieldCheck
 } from 'lucide-react';
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
@@ -39,6 +40,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     { to: '/announcements', label: 'Announcements', icon: Bell },
     { to: '/attendance-history', label: 'Attendance History', icon: History },
     { to: '/late-entry', label: 'Late Entry Register', icon: BookOpen },
+    { to: '/egate-pass', label: 'Express Outpasses', icon: ShieldCheck },
     { to: '/leave-management', label: 'Leave Management', icon: Calendar },
     { to: '/mess-poll', label: 'Mess Food Poll', icon: Coffee },
     { to: '/mess-menu', label: 'Digital Mess Menu', icon: Utensils },
@@ -62,6 +64,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     { to: '/announcements', label: 'Announcements', icon: Bell },
     { to: '/manage-rooms', label: 'Manage Rooms', icon: Home },
     { to: '/manage-accounts', label: 'User Accounts', icon: UserPlus },
+    { to: '/egate-pass', label: 'Express Outpasses', icon: ShieldCheck },
     { to: '/leave-management', label: 'Leave Management', icon: Calendar },
     { to: '/mess-poll', label: 'Mess Food Poll', icon: Coffee },
     { to: '/mess-menu', label: 'Digital Mess Menu', icon: Utensils },
