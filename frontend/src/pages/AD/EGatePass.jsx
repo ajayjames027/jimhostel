@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import API from '../../api';
 import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../context/AuthContext';
-import { QrCode, Send, ShieldCheck, Clock, CheckCircle, Trash2 } from 'lucide-react';
+import { QrCode, Send, ShieldCheck, Clock, CheckCircle, Trash2, Ban, Edit2 } from 'lucide-react';
 
 const EGatePass = () => {
   const { showToast } = useToast();
@@ -49,14 +49,35 @@ const EGatePass = () => {
     }
   };
 
+  const revokePass = async (id) => {
+    if(window.confirm('Disable this digital gate pass instantly?')) {
+        try {
+            await API.put(`/egate-pass/${id}`, { status: 'Disabled' });
+            showToast('Gate pass disabled.', 'success');
+            loadData();
+        } catch(e) { showToast('Error disabling', 'error'); }
+    }
+  };
+
   const deletePass = async (id) => {
-    if(window.confirm('Revoke this digital gate pass?')) {
+    if(window.confirm('Permanently delete this digital gate pass?')) {
         try {
             await API.delete(`/egate-pass/${id}`);
-            showToast('Gate pass revoked.', 'success');
+            showToast('Gate pass deleted.', 'success');
             loadData();
         } catch(e) { showToast('Error deleting', 'error'); }
     }
+  };
+
+  const populateEdit = (p) => {
+     setForm({
+        student_id: p.student_id,
+        date: p.date,
+        out_time: p.out_time,
+        in_time: p.in_time,
+        reason: p.reason
+     });
+     showToast('Pass details loaded to the form. You can modify and generate it again (or delete the old one).', 'info');
   };
 
   return (
@@ -133,7 +154,7 @@ const EGatePass = () => {
                    const passIn = new Date(p.date);
                    passIn.setHours(parseInt(inH), parseInt(inM), 0);
                    
-                   const isExpired = current > passIn;
+                   const isExpired = current > passIn || p.status === 'Disabled';
 
                    return (
                      <div key={p._id} className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col sm:flex-row justify-between items-start gap-4 hover:border-gray-200 transition-all relative overflow-hidden group">
@@ -155,15 +176,28 @@ const EGatePass = () => {
                               <p className="text-xs text-gray-600 italic mt-2 border-l-2 border-gray-200 pl-2">"{p.reason}"</p>
                            </div>
                            
-                           <div className="flex flex-col items-end gap-2 shrink-0">
-                               {user.role === 'Admin' && (
-                                 <button onClick={()=>deletePass(p._id)} className="text-gray-300 hover:text-red-500 p-1 bg-white rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity absolute top-2 right-2">
-                                     <Trash2 className="w-3.5 h-3.5"/>
-                                 </button>
-                               )}
-                               <span className={`px-2.5 py-1 rounded-md text-[9px] font-extrabold uppercase tracking-wider ${!isExpired ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-50 text-rose-500'}`}>
-                                 {!isExpired ? 'Active' : 'Expired'}
+                           <div className="flex flex-col items-end justify-center gap-1.5 shrink-0 opacity-100 group-hover:opacity-100 transition-opacity">
+                               <span className={`px-2.5 py-1 rounded-md text-[9px] font-extrabold uppercase tracking-wider mb-2 ${!isExpired ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-50 text-rose-500'}`}>
+                                 {p.status === 'Disabled' ? 'Revoked' : !isExpired ? 'Active' : 'Expired'}
                                </span>
+                               
+                               <div className="flex items-center gap-1">
+                                 <button onClick={()=>populateEdit(p)} className="p-1.5 bg-gray-50 hover:bg-emerald-50 text-emerald-600 rounded shadow-sm border border-gray-200 transition-colors tooltip-trigger relative">
+                                    <Edit2 className="w-3.5 h-3.5" />
+                                 </button>
+                                 
+                                 {!isExpired && p.status === 'Active' && (
+                                    <button onClick={()=>revokePass(p._id)} className="p-1.5 bg-gray-50 hover:bg-amber-50 text-amber-600 rounded shadow-sm border border-gray-200 transition-colors">
+                                        <Ban className="w-3.5 h-3.5" />
+                                    </button>
+                                 )}
+
+                                 {(user.role === 'Admin' || user.role === 'AD') && (
+                                   <button onClick={()=>deletePass(p._id)} className="p-1.5 bg-gray-50 hover:bg-rose-50 text-rose-600 rounded shadow-sm border border-gray-200 transition-colors">
+                                       <Trash2 className="w-3.5 h-3.5"/>
+                                   </button>
+                                 )}
+                               </div>
                            </div>
                         </div>
                      </div>

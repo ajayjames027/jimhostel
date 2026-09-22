@@ -76,6 +76,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
   const studentLinks = [
     { to: '/student', label: 'My Dashboard', icon: LayoutDashboard },
     { to: '/mess-menu', label: 'Digital Mess Menu', icon: Utensils },
+    { to: '/my-gate-passes', label: 'E-Gate Passes', icon: ShieldCheck },
     { to: '/student-settings', label: 'Requests & Settings', icon: Settings }
   ];
 
