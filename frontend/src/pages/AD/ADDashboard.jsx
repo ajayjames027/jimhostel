@@ -26,7 +26,7 @@ const ADDashboard = () => {
   const handleOpenModal = async (dateStr, status) => {
     setModalData({ isOpen: true, date: dateStr, type: status, records: [], loading: true });
     try {
-      const res = await API.get(`/attendance/history?date=${dateStr}&status=${status}`);
+      const res = await API.get(`/attendance/history?start_date=${dateStr}&end_date=${dateStr}&status=${status}&type=night`);
       setModalData({ isOpen: true, date: dateStr, type: status, records: res.data, loading: false });
     } catch (e) {
       showToast('Error loading details', 'error');
@@ -46,7 +46,7 @@ const ADDashboard = () => {
 
       // Fetch today's absent list
       const today = new Date().toISOString().split('T')[0];
-      const absRes = await API.get(`/attendance/history?date=${today}&status=Absent`);
+      const absRes = await API.get(`/attendance/history?start_date=${today}&end_date=${today}&status=Absent&type=night`);
       setAbsents(absRes.data);
     } catch (e) {
       showToast('Error loading dashboard statistics', 'error');
