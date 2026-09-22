@@ -150,7 +150,7 @@ const StudentSettings = () => {
         {activeTab === 'feedback' && (
           <div className="premium-card p-8 border-t-4 border-t-fuchsia-500 shadow-xl shadow-fuchsia-500/5 relative overflow-hidden animate-fade-in mt-4">
             <h3 className="font-extrabold text-xl text-gray-900 mb-2 flex items-center gap-2"><Send className="w-6 h-6 text-fuchsia-500" /> Feedback & Suggestions</h3>
-            <p className="text-sm font-semibold text-gray-500 mb-6">Have an idea to improve the hostel or the food? Drop it anonymously here!</p>
+            <p className="text-sm font-semibold text-gray-500 mb-6">Have an idea to improve the hostel? Drop it anonymously here!</p>
             
             <form onSubmit={handleSubmitFeedback} className="space-y-4">
                <div>
