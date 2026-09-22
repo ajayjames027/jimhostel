@@ -154,12 +154,13 @@ const EGatePass = () => {
               ) : (
                 passes.map(p => {
                    // Calculate expiry
-                   const [outH, outM] = p.out_time.split(':');
-                   const [inH, inM] = p.in_time.split(':');
+                   const oTime = p.out_time || '00:00';
+                   const iTime = p.in_time || '00:00';
+                   const [outH, outM] = oTime.split(':');
+                   const [inH, inM] = iTime.split(':');
                    
                    const current = new Date();
-                   const passDate = new Date(p.date);
-                   const passIn = new Date(p.date);
+                   const passIn = new Date(p.date || new Date());
                    passIn.setHours(parseInt(inH), parseInt(inM), 0);
                    
                    const isExpired = current > passIn || p.status === 'Disabled';

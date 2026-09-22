@@ -496,11 +496,13 @@ const StudentDashboard = () => {
       })()}
 
       {selectedExpressPass && (() => {
-        const [outH, outM] = selectedExpressPass.out_time.split(':');
-        const [inH, inM] = selectedExpressPass.in_time.split(':');
+        const oTime = selectedExpressPass.out_time || '00:00';
+        const iTime = selectedExpressPass.in_time || '00:00';
+        const [outH, outM] = oTime.split(':');
+        const [inH, inM] = iTime.split(':');
         
         const current = new Date();
-        const passIn = new Date(selectedExpressPass.date);
+        const passIn = new Date(selectedExpressPass.date || new Date());
         passIn.setHours(parseInt(inH), parseInt(inM), 0);
         
         const isExpired = current > passIn || selectedExpressPass.status !== 'Active';

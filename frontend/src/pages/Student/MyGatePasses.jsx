@@ -122,12 +122,14 @@ const MyGatePasses = () => {
              </div>
          ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-               {passes.map(p => {
-                   const [outH, outM] = p.out_time.split(':');
-                   const [inH, inM] = p.in_time.split(':');
+                {passes.map(p => {
+                   const oTime = p.out_time || '00:00';
+                   const iTime = p.in_time || '00:00';
+                   const [outH, outM] = oTime.split(':');
+                   const [inH, inM] = iTime.split(':');
                    
                    const current = new Date();
-                   const passIn = new Date(p.date);
+                   const passIn = new Date(p.date || new Date());
                    passIn.setHours(parseInt(inH), parseInt(inM), 0);
                    
                    const isExpired = current > passIn || p.status === 'Disabled';
@@ -165,11 +167,13 @@ const MyGatePasses = () => {
       </div>
 
       {selectedPass && (() => {
-        const [outH, outM] = selectedPass.out_time.split(':');
-        const [inH, inM] = selectedPass.in_time.split(':');
+        const oTime = selectedPass.out_time || '00:00';
+        const iTime = selectedPass.in_time || '00:00';
+        const [outH, outM] = oTime.split(':');
+        const [inH, inM] = iTime.split(':');
         
         const current = new Date();
-        const passIn = new Date(selectedPass.date);
+        const passIn = new Date(selectedPass.date || new Date());
         passIn.setHours(parseInt(inH), parseInt(inM), 0);
         
         const isExpired = current > passIn || selectedPass.status !== 'Active';
