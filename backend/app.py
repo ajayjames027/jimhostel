@@ -1,6 +1,13 @@
 import os
 import io
+import time
 import datetime
+
+# Explicilty force exactly strict IST timezone globally for the entire system / deployed server
+os.environ['TZ'] = 'Asia/Kolkata'
+if hasattr(time, 'tzset'):
+    time.tzset()
+
 import jwt
 import bcrypt
 from flask import Flask, request, jsonify, send_file
@@ -283,12 +290,12 @@ def generate_manual_endpoint():
 def log_action(user_id, username, action, details):
     db = get_db()
     log_doc = {
-        "_id": str(datetime.datetime.utcnow().timestamp()),
+        "_id": str(datetime.datetime.now().timestamp()),
         "user_id": user_id,
         "username": username,
         "action": action,
         "details": details,
-        "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat()
+        "timestamp": datetime.datetime.now().isoformat()
     }
     db["audit_logs"].insert_one(log_doc)
 
@@ -329,7 +336,7 @@ def check_continuous_absences(student_id, student_name, room_number):
                 "type": "SMS/Email Triggered",
                 "status": "Unread",
                 "level": level,
-                "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat()
+                "timestamp": datetime.datetime.now().isoformat()
             }
             db["notifications"].insert_one(alert_doc)
             print(f"ALERT CREATED: {title} for {student_name}")
@@ -369,11 +376,11 @@ def handle_feedback(current_user):
 
     data = request.json
     db["feedback"].insert_one({
-        "_id": str(datetime.datetime.utcnow().timestamp()),
+        "_id": str(datetime.datetime.now().timestamp()),
         "student_id": data.get("student_id"),
         "room_number": data.get("room_number"),
         "message": data.get("message"),
-        "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat()
+        "timestamp": datetime.datetime.now().isoformat()
     })
     return jsonify({"message": "Feedback submitted"})
 
@@ -384,7 +391,7 @@ def handle_maintenance(current_user):
     if request.method == 'POST':
         data = request.json
         doc = {
-            "_id": str(datetime.datetime.utcnow().timestamp()),
+            "_id": str(datetime.datetime.now().timestamp()),
             "student_id": data.get("student_id"),
             "name": current_user.get("name"),
             "room_number": data.get("room_number"),
@@ -392,7 +399,7 @@ def handle_maintenance(current_user):
             "description": data.get("description"),
             "photo_data": data.get("photo_data", ""),
             "status": "Pending",
-            "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat()
+            "timestamp": datetime.datetime.now().isoformat()
         }
         db["maintenance"].insert_one(doc)
         return jsonify({"message": "Maintenance issue reported."})
@@ -514,7 +521,7 @@ def login():
                     'user_id': student['_id'],
                     'username': student['_id'],
                     'role': 'Student',
-                    'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24)
+                    'exp': datetime.datetime.now() + datetime.timedelta(hours=24)
                 }, app.config['JWT_SECRET'], algorithm="HS256")
                 
                 return jsonify({
@@ -536,7 +543,7 @@ def login():
         'user_id': user['_id'],
         'username': user['username'],
         'role': user['role'],
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24)
+        'exp': datetime.datetime.now() + datetime.timedelta(hours=24)
     }, app.config['JWT_SECRET'], algorithm="HS256")
     
     log_action(user['_id'], user['username'], "Login", "User successfully logged into the system")
@@ -599,13 +606,13 @@ def forgot_password():
     if user:
         # Save a notification in db
         notif = {
-            "_id": f"forgot_pw_{user['_id']}_{int(datetime.datetime.utcnow().timestamp())}",
+            "_id": f"forgot_pw_{user['_id']}_{int(datetime.datetime.now().timestamp())}",
             "student_id": "",
             "title": "Password Reset Simulated",
             "message": f"Password reset instructions requested for account '{user['username']}'. Reset code: {random.randint(100000, 999999)}",
             "type": "Email",
             "status": "Unread",
-            "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat()
+            "timestamp": datetime.datetime.now().isoformat()
         }
         db["notifications"].insert_one(notif)
     
@@ -673,7 +680,7 @@ def manage_accounts(current_user):
             "role": role,
             "email": email,
             "name": name,
-            "created_at": datetime.datetime.now(datetime.timezone.utc).isoformat()
+            "created_at": datetime.datetime.now().isoformat()
         }
         db["users"].insert_one(new_user)
         log_action(current_user['_id'], current_user['username'], "Create User", f"Created {role} account: {username}")
@@ -1000,7 +1007,7 @@ def mark_attendance(current_user):
     if not room:
         return jsonify({'message': f"Room {room_number} not found."}), 404
         
-    timestamp_time = datetime.datetime.now(datetime.timezone.utc).strftime('%H:%M:%S')
+    timestamp_time = datetime.datetime.now().strftime('%H:%M:%S')
     timestamp = f"{date_str}T{timestamp_time}+00:00"
     marked_by = current_user['name']
     
@@ -1224,14 +1231,14 @@ def manage_leaves(current_user):
             return jsonify({'message': 'Student not found'}), 404
             
         new_leave = {
-            "_id": f"leave_{student_id}_{int(datetime.datetime.utcnow().timestamp())}",
+            "_id": f"leave_{student_id}_{int(datetime.datetime.now().timestamp())}",
             "student_id": student_id,
             "leave_from": leave_from,
             "leave_to": leave_to,
             "reason": reason,
             "status": "Pending",
             "approved_by": "",
-            "created_at": datetime.datetime.now(datetime.timezone.utc).isoformat()
+            "created_at": datetime.datetime.now().isoformat()
         }
         db["leave_requests"].insert_one(new_leave)
         log_action(current_user['_id'], current_user['username'], "Submit Leave", f"Submitted leave request for {student['name']}")
@@ -1284,7 +1291,7 @@ def approve_leave(current_user, leave_id):
             "message": f"Leave from {leave['leave_from']} to {leave['leave_to']} approved by Director.",
             "type": "SMS/Email",
             "status": "Unread",
-            "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat()
+            "timestamp": datetime.datetime.now().isoformat()
         }
         db["notifications"].insert_one(notif)
         
@@ -1346,7 +1353,7 @@ def create_announcement(current_user):
     import datetime
     ann = {
         "message": data.get('message', ''),
-        "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        "timestamp": datetime.datetime.now().isoformat(),
         "author": current_user.get('name', 'System Admin'),
         "author_role": current_user.get('role', 'Admin')
     }
@@ -1413,7 +1420,7 @@ def manage_visitors(current_user):
             return jsonify({'message': 'Visitor Name, Student ID, and Phone Number are required.'}), 400
             
         new_visitor = {
-            "_id": f"visitor_{int(datetime.datetime.utcnow().timestamp())}",
+            "_id": f"visitor_{int(datetime.datetime.now().timestamp())}",
             "visitor_name": visitor_name,
             "student_id": student_id,
             "relationship": relationship,
@@ -1421,7 +1428,7 @@ def manage_visitors(current_user):
             "entry_time": entry_time,
             "exit_time": exit_time,
             "purpose": purpose,
-            "created_at": datetime.datetime.now(datetime.timezone.utc).isoformat()
+            "created_at": datetime.datetime.now().isoformat()
         }
         db["visitors"].insert_one(new_visitor)
         return jsonify({'message': 'Visitor log created successfully.'}), 201
@@ -1453,12 +1460,12 @@ def manage_late_entries(current_user):
             return jsonify({'message': 'Student not found'}), 404
             
         new_late_entry = {
-            "_id": f"late_{student_id}_{int(datetime.datetime.utcnow().timestamp())}",
+            "_id": f"late_{student_id}_{int(datetime.datetime.now().timestamp())}",
             "student_id": student_id,
             "entry_time": entry_time,
             "reason": reason,
             "approved_by": approved_by,
-            "created_at": datetime.datetime.now(datetime.timezone.utc).isoformat()
+            "created_at": datetime.datetime.now().isoformat()
         }
         db["late_entries"].insert_one(new_late_entry)
         
@@ -1758,7 +1765,7 @@ def health_check():
     return jsonify({
         'status': 'healthy',
         'app': 'JIM Hostel Attendance API Server',
-        'time': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        'time': datetime.datetime.now().isoformat(),
         'database_mode': 'Mock persistent files' if get_db().__class__.__name__ == 'MockDatabase' else 'MongoDB cluster'
     })
 
