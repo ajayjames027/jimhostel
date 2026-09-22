@@ -1048,6 +1048,22 @@ def mark_attendance(current_user):
             upsert=True
         )
         
+        # Link to auto register Late Entries
+        if final_status == "Late Entry":
+            db["late_entries"].update_one(
+                {"student_id": s_id, "entry_time": {"$regex": f"^{date_str}"}},
+                {"$set": {
+                    "student_id": s_id,
+                    "entry_time": datetime.datetime.now().isoformat(),
+                    "reason": remark if remark else "Marked Late during roll call",
+                    "approved_by": marked_by,
+                    "created_at": datetime.datetime.now().isoformat()
+                }},
+                upsert=True
+            )
+        else:
+            db["late_entries"].delete_many({"student_id": s_id, "entry_time": {"$regex": f"^{date_str}"}})
+        
         # Trigger recalculation of percentages
         update_student_attendance_percentage(s_id)
         
@@ -1083,6 +1099,21 @@ def update_attendance_record(current_user, att_id):
             "timestamp": datetime.datetime.now().isoformat()
         }}
     )
+    
+    if new_status == "Late Entry":
+        db["late_entries"].update_one(
+            {"student_id": record["student_id"], "entry_time": {"$regex": f"^{record['date']}"}},
+            {"$set": {
+                "student_id": record["student_id"],
+                "entry_time": datetime.datetime.now().isoformat(),
+                "reason": new_remarks if new_remarks else "Marked Late during roll call edit",
+                "approved_by": current_user['name'],
+                "created_at": datetime.datetime.now().isoformat()
+            }},
+            upsert=True
+        )
+    else:
+        db["late_entries"].delete_many({"student_id": record["student_id"], "entry_time": {"$regex": f"^{record['date']}"}})
     
     update_student_attendance_percentage(record["student_id"])
     
