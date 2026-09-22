@@ -1050,11 +1050,14 @@ def mark_attendance(current_user):
         
         # Link to auto register Late Entries
         if final_status == "Late Entry":
+            # Synthesize entry time using the rollcall date to avoid pushing it to 'today' instead of past days
+            current_t = datetime.datetime.now().strftime("%H:%M:%S")
+            hist_entry = f"{date_str}T{current_t}"
             db["late_entries"].update_one(
                 {"student_id": s_id, "entry_time": {"$regex": f"^{date_str}"}},
                 {"$set": {
                     "student_id": s_id,
-                    "entry_time": datetime.datetime.now().isoformat(),
+                    "entry_time": hist_entry,
                     "reason": remark if remark else "Marked Late during roll call",
                     "approved_by": marked_by,
                     "created_at": datetime.datetime.now().isoformat()
@@ -1101,11 +1104,13 @@ def update_attendance_record(current_user, att_id):
     )
     
     if new_status == "Late Entry":
+        current_t = datetime.datetime.now().strftime("%H:%M:%S")
+        hist_entry = f"{record['date']}T{current_t}"
         db["late_entries"].update_one(
             {"student_id": record["student_id"], "entry_time": {"$regex": f"^{record['date']}"}},
             {"$set": {
                 "student_id": record["student_id"],
-                "entry_time": datetime.datetime.now().isoformat(),
+                "entry_time": hist_entry,
                 "reason": new_remarks if new_remarks else "Marked Late during roll call edit",
                 "approved_by": current_user['name'],
                 "created_at": datetime.datetime.now().isoformat()
@@ -1876,6 +1881,34 @@ def food_poll_summary(current_user, date):
             summary['groups'][grp]['dinner'] += 1
             
     return jsonify(summary)
+
+# =====================================================================
+# STARTUP MIGRATIONS
+# =====================================================================
+def run_migrations():
+    try:
+        db = get_db()
+        lates = list(db["attendance"].find({"status": "Late Entry"}))
+        for rec in lates:
+            s_id = rec["student_id"]
+            d_str = rec["date"]
+            exists = db["late_entries"].find_one({"student_id": s_id, "entry_time": {"$regex": f"^{d_str}"}})
+            if not exists:
+                att_time = rec.get("timestamp", f"{d_str}T23:00:00")
+                if not att_time.startswith(d_str):
+                    att_time = f"{d_str}T{att_time.split('T')[-1]}" if 'T' in att_time else f"{d_str}T23:00:00"
+                db["late_entries"].insert_one({
+                    "student_id": s_id,
+                    "entry_time": att_time,
+                    "reason": rec.get("remarks", "Auto-Migrated from old roll call log"),
+                    "approved_by": rec.get("marked_by", "System Auto-Sync"),
+                    "created_at": datetime.datetime.now().isoformat()
+                })
+    except Exception as e:
+        print("Migration Error: ", e)
+
+# Run migrations inline
+run_migrations()
 
 if __name__ == '__main__':
 
