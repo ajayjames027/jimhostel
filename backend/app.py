@@ -1426,7 +1426,7 @@ def manage_egate_pass(current_user):
             "reason": data.get("reason"),
             "status": "Active",
             "created_by": current_user['username'],
-            "created_at": datetime.utcnow().isoformat()
+            "created_at": datetime.datetime.utcnow().isoformat()
         }
         db["egate_passes"].insert_one(new_pass)
         log_action(current_user['_id'], current_user['username'], "Generate EGate Pass", f"Generated pass for {data.get('student_id')}")
