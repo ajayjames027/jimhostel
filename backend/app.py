@@ -1535,8 +1535,8 @@ def get_analytics(current_user):
         day = today - datetime.timedelta(days=i)
         day_str = day.strftime("%Y-%m-%d")
         
-        # Calculate morning and night averages
-        for a_type in ["morning", "night"]:
+        # Calculate night averages (removed morning per user request)
+        for a_type in ["night"]:
             total = db["attendance"].count_documents({"date": day_str, "type": a_type})
             presents = db["attendance"].count_documents({"date": day_str, "type": a_type, "status": {"$in": ["Present", "Late Entry"]}})
             leaves = db["attendance"].count_documents({"date": day_str, "type": a_type, "status": "Leave"})
@@ -1605,13 +1605,9 @@ def get_dashboard_summary(current_user):
     total_students = db["students"].count_documents({})
     on_leave = db["students"].count_documents({"status": "On Leave"})
     
-    # Determine latest marked attendance
-    # If today's night attendance is marked, use that. Otherwise today's morning, otherwise yesterday's night.
+    # User requested only night attendance to be displayed on dashboard
+    type_to_show = "night"
     records_today = list(db["attendance"].find({"date": today_str}))
-    
-    type_to_show = "morning"
-    if any(r.get('type') == 'night' for r in records_today):
-        type_to_show = "night"
         
     # Filter today's records for active type and aggregate stats in memory
     filtered_records = [r for r in records_today if r.get('type') == type_to_show]
