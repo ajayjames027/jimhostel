@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import API from '../../api';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import { ShieldCheck, Clock, CheckCircle, Ban, QrCode, Send, PlusCircle } from 'lucide-react';
 
 const LiveClock = () => {
