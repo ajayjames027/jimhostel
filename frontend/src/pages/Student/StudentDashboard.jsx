@@ -537,8 +537,8 @@ const StudentDashboard = () => {
 
                 <div className="w-full border-t border-gray-100 mt-4 pt-4 text-center">
                    <p className="text-[9px] uppercase tracking-widest text-gray-400 font-bold mb-1">Digitally Signed By</p>
-                   <p className="font-serif italic text-emerald-800 font-medium text-sm">{selectedExpressPass.created_by === 'ad' ? 'Ajay James' : selectedExpressPass.created_by}</p>
-                   <p className="text-[10px] text-gray-500 font-semibold">{selectedExpressPass.created_by === 'ad' ? 'Assistant Director' : 'Administrator'}</p>
+                   <p className="font-serif italic text-emerald-800 font-medium text-sm">Ajay James</p>
+                   <p className="text-[10px] text-gray-500 font-semibold">Assistant Director</p>
                 </div>
 
                 <button onClick={() => setSelectedExpressPass(null)} className="mt-6 w-full py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-extrabold rounded-xl text-xs transition-colors">
