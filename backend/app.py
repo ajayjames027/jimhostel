@@ -530,7 +530,8 @@ def login():
                         'username': student['_id'],
                         'role': 'Student',
                         'name': student['name'],
-                        'email': student['email']
+                        'email': student['email'],
+                        'requires_password_change': student.get('password', 'jim123') == 'jim123'
                     }
                 })
 

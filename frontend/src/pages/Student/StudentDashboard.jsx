@@ -17,6 +17,35 @@ const StudentDashboard = () => {
   const [leaveForm, setLeaveForm] = useState({ leave_from: '', leave_to: '', reason: '' });
 
   const [announcements, setAnnouncements] = useState([]);
+  
+  // Mandatory Password Change Logic
+  const [mustChangePwd, setMustChangePwd] = useState(user?.requires_password_change === true);
+  const [pwdForm, setPwdForm] = useState({ newPwd: '', confirmPwd: '' });
+  const [pwdLoading, setPwdLoading] = useState(false);
+
+  const handleForcePwdChange = async (e) => {
+    e.preventDefault();
+    if (pwdForm.newPwd !== pwdForm.confirmPwd) {
+       showToast("Passwords don't match", "error");
+       return;
+    }
+    if (pwdForm.newPwd.length < 5) {
+       showToast("Password is too short (min 5 characters)", "error");
+       return;
+    }
+    setPwdLoading(true);
+    try {
+      await API.put(`/students/${user.username}/password`, { password: pwdForm.newPwd });
+      const cached = JSON.parse(localStorage.getItem('jim_user') || '{}');
+      cached.requires_password_change = false;
+      localStorage.setItem('jim_user', JSON.stringify(cached));
+      setMustChangePwd(false);
+      showToast("Password securely updated! Welcome.", "success");
+    } catch (e) {
+      showToast("Failed to update password", "error");
+    }
+    setPwdLoading(false);
+  };
 
   useEffect(() => {
     const fetchMe = async () => {
@@ -287,6 +316,37 @@ const StudentDashboard = () => {
             </div>
         </div>
       </div>
+
+      {mustChangePwd && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-fade-in lock-modal top-0 relative">
+             <div className="bg-rose-50 p-6 flex flex-col items-center justify-center border-b border-rose-100">
+                <div className="w-16 h-16 bg-rose-100 rounded-full flex items-center justify-center mb-3">
+                   <Lock className="w-8 h-8 text-rose-600" />
+                </div>
+                <h3 className="font-extrabold text-xl text-gray-900 text-center">Security Update Required</h3>
+                <p className="text-sm font-medium text-gray-500 text-center mt-2 max-w-[250px]">
+                   You are currently using the default network password. Please set a new secure password to continue.
+                </p>
+             </div>
+             
+             <form onSubmit={handleForcePwdChange} className="p-6 space-y-4">
+                <div>
+                   <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5 ml-1">New Password</label>
+                   <input type="password" required value={pwdForm.newPwd} onChange={e=>setPwdForm({...pwdForm, newPwd: e.target.value})} className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50/50 focus:bg-white text-sm font-bold focus:ring-2 ring-primary/20 outline-none transition-all" placeholder="Enter new password (min 5 chars)" />
+                </div>
+                <div>
+                   <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5 ml-1">Confirm Password</label>
+                   <input type="password" required value={pwdForm.confirmPwd} onChange={e=>setPwdForm({...pwdForm, confirmPwd: e.target.value})} className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50/50 focus:bg-white text-sm font-bold focus:ring-2 ring-primary/20 outline-none transition-all" placeholder="Re-enter to confirm" />
+                </div>
+                
+                <button type="submit" disabled={pwdLoading} className="w-full bg-gray-900 hover:bg-gray-800 disabled:bg-gray-400 text-white py-4 rounded-xl font-extrabold text-sm shadow-xl shadow-gray-900/20 flex justify-center items-center gap-2 transition-all active:scale-[0.98] mt-2">
+                   {pwdLoading ? 'Securing Profile...' : 'Update & Continue'}
+                </button>
+             </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
