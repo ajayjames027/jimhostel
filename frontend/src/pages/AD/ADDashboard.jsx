@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import API from '../../api';
 import { useToast } from '../../context/ToastContext';
-import { Home, UserCheck, AlertTriangle, Users, Clock, ClipboardList, ChevronRight, FileSpreadsheet } from 'lucide-react';
+import { Home, UserCheck, AlertTriangle, Users, Clock, ClipboardList, ChevronRight, FileSpreadsheet, X } from 'lucide-react';
+
 
 const ADDashboard = () => {
   const { showToast } = useToast();
@@ -10,6 +11,28 @@ const ADDashboard = () => {
   const [absents, setAbsents] = useState([]);
   const [trends, setTrends] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [modalData, setModalData] = useState({ isOpen: false, date: null, type: null, records: [], loading: false });
+
+  const formatDDMMYYYY = (dateStr) => {
+    if (!dateStr) return '';
+    try {
+      const parts = dateStr.split('-');
+      return `${parts[2]}.${parts[1]}.${parts[0]}`;
+    } catch {
+      return dateStr;
+    }
+  };
+
+  const handleOpenModal = async (dateStr, status) => {
+    setModalData({ isOpen: true, date: dateStr, type: status, records: [], loading: true });
+    try {
+      const res = await API.get(`/attendance/history?date=${dateStr}&status=${status}`);
+      setModalData({ isOpen: true, date: dateStr, type: status, records: res.data, loading: false });
+    } catch (e) {
+      showToast('Error loading details', 'error');
+      setModalData(prev => ({ ...prev, loading: false }));
+    }
+  };
 
   const fetchData = async () => {
     try {
@@ -50,6 +73,42 @@ const ADDashboard = () => {
       <div>
         <h2 className="font-extrabold text-2xl text-gray-800 tracking-tight">AD Control Panel</h2>
         <p className="text-gray-500 text-xs mt-1">Hostel operations, daily roll calls, and check-in logs</p>
+      </div>
+
+      {/* Date-Wise Summary (Top Section) */}
+      <div className="premium-card p-6 space-y-4">
+        <h3 className="font-bold text-gray-800 text-sm border-b border-gray-50 pb-3 block truncate">
+          Recent Date-Wise Summary
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {trends.slice().reverse().slice(0, 5).map((t, idx) => (
+            <div key={idx} className="flex flex-col text-xs p-3 rounded-lg bg-gray-50 border border-gray-100">
+              <div className="font-bold text-gray-700 mb-2 border-b border-gray-200 pb-1 text-center">
+                {formatDDMMYYYY(t.date)} 
+                <span className="text-[10px] text-gray-400 block mt-0.5">({t.label.split(' ')[0]})</span>
+              </div>
+              <div className="flex justify-between mt-1">
+                <span className="text-emerald-600 font-bold">Present: {t.present}</span>
+                <span className="text-amber-500 font-bold">Leaves: {t.leave}</span>
+              </div>
+              <div className="flex justify-between mt-1 pt-1 border-t border-gray-200/50">
+                <button 
+                  onClick={() => handleOpenModal(t.date, 'Absent')}
+                  className="text-rose-600 font-bold hover:underline cursor-pointer"
+                >
+                  Absents: {t.absent}
+                </button>
+                <button 
+                  onClick={() => handleOpenModal(t.date, 'Late Entry')}
+                  className="text-amber-600 font-bold hover:underline cursor-pointer"
+                >
+                  Lates: {t.late || 0} 
+                </button>
+              </div>
+            </div>
+          ))}
+          {trends.length === 0 && <p className="text-[10px] text-gray-400">No trend data available.</p>}
+        </div>
       </div>
 
       {/* Summary Cards */}
@@ -156,27 +215,69 @@ const ADDashboard = () => {
             </Link>
           </div>
         </div>
-        
-        {/* Date-Wise Summary */}
-        <div className="premium-card p-6 space-y-4 h-fit mt-6 lg:mt-0 lg:col-span-1">
-          <h3 className="font-bold text-gray-800 text-sm border-b border-gray-50 pb-3 block truncate">
-            Recent Date-Wise Summary
-          </h3>
-          <div className="space-y-3">
-            {trends.slice().reverse().slice(0, 5).map((t, idx) => (
-              <div key={idx} className="flex justify-between items-center text-xs p-2 rounded-lg bg-gray-50 border border-gray-100">
-                <div className="font-bold text-gray-700">{t.date} <span className="text-[10px] text-gray-400">({t.label.split(' ')[1]})</span></div>
-                <div className="flex gap-2">
-                  <span className="text-emerald-600 font-bold">P:{t.present}</span>
-                  <span className="text-rose-600 font-bold">A:{t.absent}</span>
-                  <span className="text-amber-500 font-bold">L:{t.leave}</span>
-                </div>
+      </div>
+
+      {/* Modal for Absent/Late Details */}
+      {modalData.isOpen && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-start justify-center pt-20 overflow-y-auto px-4">
+          <div className="bg-white rounded-3xl w-full max-w-2xl shadow-2xl border border-gray-100 p-6 space-y-4">
+            <div className="flex justify-between items-center border-b border-gray-100 pb-3">
+              <div>
+                <h3 className="font-extrabold text-lg text-gray-800">
+                  {modalData.type} Details
+                </h3>
+                <p className="text-[10px] text-gray-400 font-bold uppercase mt-0.5">
+                  Date: {formatDDMMYYYY(modalData.date)}
+                </p>
               </div>
-            ))}
-            {trends.length === 0 && <p className="text-[10px] text-gray-400">No trend data available.</p>}
+              <button 
+                onClick={() => setModalData({ ...modalData, isOpen: false })}
+                className="p-1.5 hover:bg-gray-100 rounded-full text-gray-500 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="max-h-80 overflow-y-auto">
+              {modalData.loading ? (
+                <div className="flex justify-center p-8">
+                  <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                </div>
+              ) : modalData.records.length === 0 ? (
+                <p className="text-center text-gray-400 text-xs p-6">No records found for this category.</p>
+              ) : (
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="bg-gray-50 text-gray-500 font-bold border-b border-gray-100">
+                      <th className="p-3">Student Name</th>
+                      <th className="p-3">Room</th>
+                      <th className="p-3">Reg. Number</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50 font-medium text-gray-700">
+                    {modalData.records.map((r) => (
+                      <tr key={r._id} className="hover:bg-gray-50/40">
+                        <td className="p-3 font-bold text-gray-900">{r.student_name}</td>
+                        <td className="p-3">{r.room_number}</td>
+                        <td className="p-3">{r.register_number}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+            
+            <div className="flex justify-end pt-2 border-t border-gray-100">
+              <button
+                onClick={() => setModalData({ ...modalData, isOpen: false })}
+                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold text-xs transition-colors"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

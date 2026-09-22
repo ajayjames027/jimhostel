@@ -69,9 +69,14 @@ def generate_pdf_report(report_type, data):
         textColor=colors.HexColor('#1F2937')
     )
 
+    # Color styles
+    red_style = ParagraphStyle('Red', parent=body_style, textColor=colors.HexColor('#DC2626'))
+    yellow_style = ParagraphStyle('Yellow', parent=body_style, textColor=colors.HexColor('#D97706'))
+
     # Add Title and Headers
+    now_str = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
     story.append(Paragraph("JIM HOSTEL ATTENDANCE MANAGEMENT SYSTEM", title_style))
-    story.append(Paragraph(f"Report Type: {report_type.upper()} REPORT", subtitle_style))
+    story.append(Paragraph(f"Report Type: {report_type.upper()} REPORT | Generated: {now_str}", subtitle_style))
     story.append(Spacer(1, 10))
 
     if not data:
@@ -96,20 +101,25 @@ def generate_pdf_report(report_type, data):
             late_entries = sum(1 for d in data if d.get('status') == 'Late Entry')
             leaves = sum(1 for d in data if d.get('status') == 'Leave')
             
-            summary_text = f"<b>Summary - Present: {presents} | Absent: {absents} | Late Entry: {late_entries} | Leaves: {leaves}</b>"
+            marked_by = data[0].get('marked_by', '') if data else ""
+            summary_text = f"<b>Marked By:</b> {marked_by} <br/><br/><b>Summary - Present: {presents} | Absent: {absents} | Late Entry: {late_entries} | Leaves: {leaves}</b>"
             story.append(Paragraph(summary_text, body_style))
             story.append(Spacer(1, 10))
 
-            headers = ["Date", "Student Name", "Room", "Status", "Marked By"]
-            col_widths = [1.2*inch, 2.3*inch, 0.7*inch, 1.0*inch, 2.2*inch]
+            headers = ["Date", "Student Name", "Room", "Status"]
+            col_widths = [1.5*inch, 2.5*inch, 1.0*inch, 1.5*inch]
             rows = [[Paragraph(h, header_style) for h in headers]]
             for item in data:
+                st = item.get('status', '')
+                used_style = body_style
+                if st == 'Absent': used_style = red_style
+                elif st == 'Late Entry': used_style = yellow_style
+                
                 rows.append([
-                    Paragraph(item.get('date', ''), body_style),
-                    Paragraph(item.get('name', ''), body_style),
-                    Paragraph(item.get('room_number', ''), body_style),
-                    Paragraph(item.get('status', ''), body_style),
-                    Paragraph(item.get('marked_by', ''), body_style)
+                    Paragraph(item.get('date', ''), used_style),
+                    Paragraph(item.get('name', ''), used_style),
+                    Paragraph(item.get('room_number', ''), used_style),
+                    Paragraph(st, used_style)
                 ])
         elif report_type == 'defaulter':
             headers = ["Student Name", "Room", "Attendance %", "Risk Level"]
@@ -235,7 +245,8 @@ def generate_excel_report(report_type, data):
     
     # Subtitle Row
     ws.merge_cells('A2:F2')
-    ws['A2'] = f"Report Type: {report_type.upper()} REPORT"
+    now_str = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+    ws['A2'] = f"Report Type: {report_type.upper()} REPORT | Generated: {now_str}"
     ws['A2'].font = Font(name='Arial', size=10, italic=True, color='4B5563')
     ws['A2'].alignment = center_align
     ws.row_dimensions[2].height = 20
@@ -266,22 +277,25 @@ def generate_excel_report(report_type, data):
             late_entries = sum(1 for d in data if d.get('status') == 'Late Entry')
             leaves = sum(1 for d in data if d.get('status') == 'Leave')
             
+            marked_by = data[0].get('marked_by', '') if data else ""
+            ws.append([f"Marked By: {marked_by}"])
+            ws.merge_cells('A4:D4')
             ws.append([f"Summary - Present: {presents} | Absent: {absents} | Late Entry: {late_entries} | Leaves: {leaves}"])
-            ws.merge_cells('A4:E4')
+            ws.merge_cells('A5:D5')
             ws['A4'].font = Font(name='Arial', size=11, bold=True, color='1F2937')
+            ws['A5'].font = Font(name='Arial', size=11, bold=True, color='1F2937')
             
             ws.append([]) # spacer
-            header_row_idx = 6
+            header_row_idx = 7
 
-            headers = ["Date", "Student Name", "Room Number", "Attendance Status", "Marked By"]
+            headers = ["Date", "Student Name", "Room Number", "Attendance Status"]
             ws.append(headers)
             for item in data:
                 ws.append([
                     item.get('date', ''),
                     item.get('name', ''),
                     item.get('room_number', ''),
-                    item.get('status', ''),
-                    item.get('marked_by', '')
+                    item.get('status', '')
                 ])
         elif report_type == 'defaulter':
             headers = ["Student Name", "Room Number", "Attendance Percentage", "Risk Level"]
@@ -331,9 +345,22 @@ def generate_excel_report(report_type, data):
         # Style body rows
         for row_idx in range(header_row_idx + 1, ws.max_row + 1):
             ws.row_dimensions[row_idx].height = 20
+            
+            row_status = None
+            if report_type == 'daily':
+                row_status = ws.cell(row=row_idx, column=4).value
+
             for col_idx in range(1, len(headers) + 1):
                 cell = ws.cell(row=row_idx, column=col_idx)
-                cell.font = body_font
+                
+                assigned_font = body_font
+                if report_type == 'daily':
+                    if row_status == 'Absent':
+                        assigned_font = Font(name='Arial', size=10, color='DC2626')
+                    elif row_status == 'Late Entry':
+                        assigned_font = Font(name='Arial', size=10, color='D97706')
+
+                cell.font = assigned_font
                 cell.border = thin_border
                 cell.alignment = left_align
                 

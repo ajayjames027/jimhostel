@@ -1541,6 +1541,8 @@ def get_analytics(current_user):
             presents = db["attendance"].count_documents({"date": day_str, "type": a_type, "status": {"$in": ["Present", "Late Entry"]}})
             leaves = db["attendance"].count_documents({"date": day_str, "type": a_type, "status": "Leave"})
             
+            lates = db["attendance"].count_documents({"date": day_str, "type": a_type, "status": "Late Entry"})
+            
             denom = total - leaves
             pct = 100.0
             if denom > 0:
@@ -1553,6 +1555,7 @@ def get_analytics(current_user):
                 "present": presents,
                 "absent": total - presents - leaves,
                 "leave": leaves,
+                "late": lates,
                 "total": total
             })
             
@@ -1658,6 +1661,14 @@ def export_reports(current_user):
         start_date = request.args.get('date', datetime.date.today().isoformat())
         end_date = start_date
         
+    def to_ddmmyyyy(date_str):
+        if not date_str: return ""
+        try:
+            import datetime
+            return datetime.datetime.strptime(date_str.split('T')[0], "%Y-%m-%d").strftime("%d.%m.%Y")
+        except:
+            return date_str
+
     db = get_db()
     data = []
     
@@ -1671,7 +1682,7 @@ def export_reports(current_user):
         for r in records:
             stud = db["students"].find_one({"_id": r["student_id"]})
             data.append({
-                "date": r.get("date", ""),
+                "date": to_ddmmyyyy(r.get("date", "")),
                 "register_number": stud["register_number"] if stud else "",
                 "name": stud["name"] if stud else "Unknown",
                 "room_number": r["room_number"],
@@ -1702,8 +1713,8 @@ def export_reports(current_user):
             data.append({
                 "name": stud["name"] if stud else "Unknown",
                 "room_number": stud["room_number"] if stud else "",
-                "leave_from": l["leave_from"],
-                "leave_to": l["leave_to"],
+                "leave_from": to_ddmmyyyy(l["leave_from"]),
+                "leave_to": to_ddmmyyyy(l["leave_to"]),
                 "reason": l["reason"],
                 "status": l["status"]
             })
