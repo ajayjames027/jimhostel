@@ -8,6 +8,7 @@ const ADDashboard = () => {
   const { showToast } = useToast();
   const [stats, setStats] = useState(null);
   const [absents, setAbsents] = useState([]);
+  const [trends, setTrends] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
@@ -15,6 +16,10 @@ const ADDashboard = () => {
       // Fetch stats summary
       const summaryRes = await API.get('/dashboard/summary');
       setStats(summaryRes.data);
+
+      // Fetch trends for date-wise summary
+      const analyticsRes = await API.get('/analytics');
+      setTrends(analyticsRes.data.trends || []);
 
       // Fetch today's absent list
       const today = new Date().toISOString().split('T')[0];
@@ -149,6 +154,26 @@ const ADDashboard = () => {
               </span>
               <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
             </Link>
+          </div>
+        </div>
+        
+        {/* Date-Wise Summary */}
+        <div className="premium-card p-6 space-y-4 h-fit mt-6 lg:mt-0 lg:col-span-1">
+          <h3 className="font-bold text-gray-800 text-sm border-b border-gray-50 pb-3 block truncate">
+            Recent Date-Wise Summary
+          </h3>
+          <div className="space-y-3">
+            {trends.slice().reverse().slice(0, 5).map((t, idx) => (
+              <div key={idx} className="flex justify-between items-center text-xs p-2 rounded-lg bg-gray-50 border border-gray-100">
+                <div className="font-bold text-gray-700">{t.date} <span className="text-[10px] text-gray-400">({t.label.split(' ')[1]})</span></div>
+                <div className="flex gap-2">
+                  <span className="text-emerald-600 font-bold">P:{t.present}</span>
+                  <span className="text-rose-600 font-bold">A:{t.absent}</span>
+                  <span className="text-amber-500 font-bold">L:{t.leave}</span>
+                </div>
+              </div>
+            ))}
+            {trends.length === 0 && <p className="text-[10px] text-gray-400">No trend data available.</p>}
           </div>
         </div>
       </div>

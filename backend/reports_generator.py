@@ -91,6 +91,15 @@ def generate_pdf_report(report_type, data):
                     Paragraph(item.get('course', ''), body_style)
                 ])
         elif report_type == 'daily':
+            presents = sum(1 for d in data if d.get('status') == 'Present')
+            absents = sum(1 for d in data if d.get('status') == 'Absent')
+            late_entries = sum(1 for d in data if d.get('status') == 'Late Entry')
+            leaves = sum(1 for d in data if d.get('status') == 'Leave')
+            
+            summary_text = f"<b>Summary - Present: {presents} | Absent: {absents} | Late Entry: {late_entries} | Leaves: {leaves}</b>"
+            story.append(Paragraph(summary_text, body_style))
+            story.append(Spacer(1, 10))
+
             headers = ["Date", "Student Name", "Room", "Status", "Marked By"]
             col_widths = [1.2*inch, 2.3*inch, 0.7*inch, 1.0*inch, 2.2*inch]
             rows = [[Paragraph(h, header_style) for h in headers]]
@@ -239,18 +248,31 @@ def generate_excel_report(report_type, data):
     else:
         # Define headers
         
+        header_row_idx = 4
+        
         if report_type == 'students':
             headers = ["Reg Number", "Name", "Room", "Course"]
-            col_widths = [1.2*inch, 2.5*inch, 1.0*inch, 2.0*inch]
-            rows = [[Paragraph(h, header_style) for h in headers]]
+            ws.append(headers)
             for item in data:
-                rows.append([
-                    Paragraph(item.get('register_number', ''), body_style),
-                    Paragraph(item.get('name', ''), body_style),
-                    Paragraph(item.get('room_number', ''), body_style),
-                    Paragraph(item.get('course', ''), body_style)
+                ws.append([
+                    item.get('register_number', ''),
+                    item.get('name', ''),
+                    item.get('room_number', ''),
+                    item.get('course', '')
                 ])
         elif report_type == 'daily':
+            presents = sum(1 for d in data if d.get('status') == 'Present')
+            absents = sum(1 for d in data if d.get('status') == 'Absent')
+            late_entries = sum(1 for d in data if d.get('status') == 'Late Entry')
+            leaves = sum(1 for d in data if d.get('status') == 'Leave')
+            
+            ws.append([f"Summary - Present: {presents} | Absent: {absents} | Late Entry: {late_entries} | Leaves: {leaves}"])
+            ws.merge_cells('A4:E4')
+            ws['A4'].font = Font(name='Arial', size=11, bold=True, color='1F2937')
+            
+            ws.append([]) # spacer
+            header_row_idx = 6
+
             headers = ["Date", "Student Name", "Room Number", "Attendance Status", "Marked By"]
             ws.append(headers)
             for item in data:
@@ -296,8 +318,7 @@ def generate_excel_report(report_type, data):
                     item.get('available_beds', 0)
                 ])
 
-        # Style the headers (Row 4 is the header row now since Row 1 is Title, Row 2 is Subtitle, Row 3 is Spacer)
-        header_row_idx = 4
+        # Style the headers
         ws.row_dimensions[header_row_idx].height = 25
         
         for col_idx in range(1, len(headers) + 1):
