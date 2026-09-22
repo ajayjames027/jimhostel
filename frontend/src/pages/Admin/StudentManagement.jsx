@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import API from '../../api';
 import { useToast } from '../../context/ToastContext';
-import { Search, Plus, Edit, Trash, X, User, Phone, MapPin, ClipboardList, HelpCircle, ArrowRight, Lock } from 'lucide-react';
+import { Search, Plus, Edit, Trash, X, User, Phone, MapPin, ClipboardList, HelpCircle, ArrowRight, Lock, Upload, Download } from 'lucide-react';
 
 const StudentManagement = () => {
   const { showToast } = useToast();
@@ -18,6 +18,8 @@ const StudentManagement = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const [importing, setImporting] = useState(false);
+  const fileInputRef = useRef(null);
 
   // Form states
   const [studentId, setStudentId] = useState('');
@@ -176,6 +178,32 @@ const StudentManagement = () => {
     );
   });
 
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    setImporting(true);
+    showToast('Importing students, please wait...', 'info');
+    try {
+      const res = await API.post('/students/import', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      showToast(res.data.message, 'success');
+      if (res.data.errors && res.data.errors.length > 0) {
+        setTimeout(() => alert("Some rows failed to import:\n" + res.data.errors.join("\n")), 500);
+      }
+      fetchStudents();
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Error importing file', 'error');
+    } finally {
+      setImporting(false);
+      e.target.value = null; // Reset
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header section */}
@@ -185,12 +213,26 @@ const StudentManagement = () => {
           <p className="text-gray-500 text-xs mt-1">Manage roll lists, allocations, profiles, and departures</p>
         </div>
         
-        <div className="flex flex-col sm:flex-row gap-2">
+        <div className="flex flex-col sm:flex-row flex-wrap gap-2">
+            <input 
+              type="file" 
+              accept=".xlsx" 
+              ref={fileInputRef} 
+              className="hidden" 
+              onChange={handleFileUpload}
+            />
             <button
-                onClick={() => window.open(API.defaults.baseURL + '/reports/students-export?format=pdf&token=' + localStorage.getItem('jim_token'), '_blank')} 
-                className="px-4 py-2.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-bold text-xs shadow-md transition-all">
-                Export PDF
+                onClick={() => window.open(API.defaults.baseURL + '/students/template?token=' + localStorage.getItem('jim_token'), '_blank')} 
+                className="flex items-center gap-2 px-3 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl font-bold text-xs transition-all">
+                <Download className="w-4 h-4" /> Template
             </button>
+            <button
+                disabled={importing}
+                onClick={() => fileInputRef.current?.click()} 
+                className={`flex items-center gap-2 px-3 py-2.5 ${importing ? 'bg-gray-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'} text-white rounded-xl font-bold text-xs shadow-md transition-all`}>
+                <Upload className="w-4 h-4" /> {importing ? 'Importing...' : 'Bulk Import'}
+            </button>
+            <div className="w-px h-8 bg-gray-200 mx-1 hidden sm:block"></div>
             <button
                 onClick={() => window.open(API.defaults.baseURL + '/reports/students-export?format=excel&token=' + localStorage.getItem('jim_token'), '_blank')} 
                 className="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold text-xs shadow-md transition-all">
@@ -198,7 +240,7 @@ const StudentManagement = () => {
             </button>
             <button
                 onClick={() => { resetForm(); setShowAddModal(true); }}
-                className="flex items-center max-h-[36px] justify-center gap-2 px-4 py-2.5 bg-primary hover:bg-primary-hover text-white rounded-xl font-semibold text-xs shadow-md transition-all active:scale-95"
+                className="flex items-center justify-center gap-2 px-4 py-2.5 bg-primary hover:bg-primary-hover text-white rounded-xl font-semibold text-xs shadow-md transition-all active:scale-95"
             >
                 <Plus className="w-4 h-4" /> Add Student
             </button>

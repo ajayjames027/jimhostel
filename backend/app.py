@@ -900,6 +900,18 @@ def get_students(current_user):
         
         db["students"].insert_one(new_student)
         
+        # Link a User Login Profile automatically
+        user_doc = {
+            "_id": f"usr_{student_id}",
+            "username": student_id,
+            "password_hash": bcrypt.hashpw('jim123'.encode('utf-8'), bcrypt.gensalt()).decode('utf-8'),
+            "role": "Student",
+            "name": name,
+            "email": email,
+            "status": "Active"
+        }
+        db["users"].insert_one(user_doc)
+        
         # Update Room Occupancy
         db["rooms"].update_one(
             {"_id": room_num},
@@ -908,6 +920,116 @@ def get_students(current_user):
         
         log_action(current_user['_id'], current_user['username'], "Add Student", f"Added Student {name} to room {room_num}")
         return jsonify({'message': f'Student {name} registered successfully'}), 201
+
+@app.route('/api/students/template', methods=['GET'])
+def download_student_template():
+    import io
+    from openpyxl import Workbook
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Students Import"
+    headers = ['Student ID', 'Register Number', 'Full Name', 'Course', 'Year', 'Department', 'Room Number', 'Student Mobile', 'Parent Mobile', 'Email']
+    ws.append(headers)
+    ws.append(['STU001', '23MBA101', 'John Doe', 'II MBA', 'II', 'Business Administration', '101', '9876543210', '9876543211', 'john@example.com'])
+    
+    out = io.BytesIO()
+    wb.save(out)
+    out.seek(0)
+    return send_file(out, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', as_attachment=True, download_name='Student_Import_Template.xlsx')
+
+@app.route('/api/students/import', methods=['POST'])
+@token_required
+@roles_required('Admin')
+def import_students(current_user):
+    if 'file' not in request.files:
+        return jsonify({'message': 'No file uploaded.'}), 400
+        
+    file = request.files['file']
+    if not file.filename.endswith('.xlsx'):
+        return jsonify({'message': 'Ensure it is an .xlsx Excel file.'}), 400
+        
+    import openpyxl
+    try:
+        wb = openpyxl.load_workbook(file)
+        ws = wb.active
+        db = get_db()
+        count = 0
+        errors = []
+        
+        for idx, row in enumerate(ws.iter_rows(values_only=True)):
+            if idx == 0: continue # Skip header
+            if not row[0]: continue
+            
+            student_id = str(row[0]).strip()
+            reg_num = str(row[1]).strip() if len(row) > 1 and row[1] else ""
+            name = str(row[2]).strip() if len(row) > 2 and row[2] else ""
+            course = str(row[3]).strip() if len(row) > 3 and row[3] else "II MBA"
+            year = str(row[4]).strip() if len(row) > 4 and row[4] else "II"
+            dept = str(row[5]).strip() if len(row) > 5 and row[5] else "Business Administration"
+            room_num = str(row[6]).strip() if len(row) > 6 and row[6] else ""
+            mobile = str(row[7]).strip() if len(row) > 7 and row[7] else ""
+            p_mobile = str(row[8]).strip() if len(row) > 8 and row[8] else ""
+            email = str(row[9]).strip() if len(row) > 9 and row[9] else ""
+            
+            if not student_id or not name or not room_num:
+                errors.append(f"Row {idx+1}: Missing student_id, name, or room.")
+                continue
+                
+            if db["students"].find_one({"_id": student_id}):
+                errors.append(f"Row {idx+1}: Student ID {student_id} exists.")
+                continue
+                
+            room = db["rooms"].find_one({"_id": room_num})
+            if not room:
+                errors.append(f"Row {idx+1}: Room {room_num} does not exist.")
+                continue
+                
+            if room["available_beds"] <= 0:
+                errors.append(f"Row {idx+1}: Room {room_num} is full.")
+                continue
+                
+            new_student = {
+                "_id": student_id,
+                "register_number": reg_num,
+                "name": name,
+                "course": course,
+                "year": year,
+                "department": dept,
+                "room_number": room_num,
+                "mobile": mobile,
+                "parent_mobile": p_mobile,
+                "email": email,
+                "photo": "",
+                "hostel_name": "JIM Boys Hostel",
+                "block": "Toulouse Arena",
+                "status": "Active",
+                "attendance_percentage": 100.0,
+                "last_attendance": "None"
+            }
+            
+            # Create user login explicitly automatically
+            t_stamp = int(datetime.datetime.now().timestamp())
+            user_doc = {
+                "_id": f"usr_{t_stamp}_{student_id}",
+                "username": student_id,
+                "password_hash": bcrypt.hashpw('jim123'.encode('utf-8'), bcrypt.gensalt()).decode('utf-8'),
+                "role": "Student",
+                "name": name,
+                "email": email,
+                "status": "Active"
+            }
+            db["students"].insert_one(new_student)
+            db["users"].insert_one(user_doc)
+            db["rooms"].update_one({"_id": room_num}, {"$inc": {"occupied": 1, "available_beds": -1}})
+            count += 1
+            
+        log_action(current_user['_id'], current_user['username'], "Bulk Import", f"Imported {count} students")
+        return jsonify({
+            'message': f'Successfully imported {count} students.',
+            'errors': errors
+        }), 201
+    except Exception as e:
+        return jsonify({'message': f'Error processing excel file: {str(e)}'}), 500
 
 @app.route('/api/students/<student_id>', methods=['GET', 'PUT', 'DELETE'])
 @token_required
