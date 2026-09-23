@@ -300,6 +300,9 @@ const UserAccounts = () => {
                     <option value="AD">Assistant Director (AD)</option>
                     <option value="Director">Hostel Director</option>
                     <option value="Admin">System Admin</option>
+                    <option value="FoodCommittee">Food Committee</option>
+                    <option value="CalendarAdmin">Calendar Admin</option>
+                    <option value="Maintenance">Maintenance Worker</option>
                   </select>
                 </div>
               </div>
@@ -461,6 +464,9 @@ const UserAccounts = () => {
                   <option value="AD">Assistant Director (AD)</option>
                   <option value="Director">Hostel Director</option>
                   <option value="Admin">System Admin</option>
+                  <option value="FoodCommittee">Food Committee</option>
+                  <option value="CalendarAdmin">Calendar Admin</option>
+                  <option value="Maintenance">Maintenance Worker</option>
                 </select>
               </div>
 
