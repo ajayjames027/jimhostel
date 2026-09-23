@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import API from '../../api';
 import { useToast } from '../../context/ToastContext';
-import { Users, Home, UserCheck, Shield, FileText, ChevronRight, UserPlus, Database, Activity, Server, Github, CheckCircle, XCircle } from 'lucide-react';
+import { Users, Home, UserCheck, Shield, FileText, ChevronRight, UserPlus, Database, Activity, Server, Cloud, CheckCircle, XCircle } from 'lucide-react';
 
 const AdminDashboard = () => {
   const { showToast } = useToast();
@@ -200,7 +200,7 @@ const AdminDashboard = () => {
                       }} />
                    </a>
                 </div>
-                <p className="text-[9px] text-gray-400 font-semibold mt-3 flex items-center gap-1"><Github className="w-3 h-3"/> Tracking 'main' branch</p>
+                <p className="text-[9px] text-gray-400 font-semibold mt-3 flex items-center gap-1"><Cloud className="w-3 h-3"/> Tracking 'main' branch</p>
              </div>
              
              {/* MongoDB Status Box */}
