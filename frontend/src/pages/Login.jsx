@@ -132,9 +132,11 @@ const Login = () => {
       </div>
 
       {/* Authentic Watermark Logo (Bottom Right) */}
-      <div className="fixed bottom-4 right-4 bg-white/95 backdrop-blur-md border border-gray-100 rounded-lg p-2.5 px-4 shadow-xl z-20 flex flex-col mt-2">
-        <span className="text-[8px] font-extrabold text-gray-400 tracking-widest mb-1 text-center w-full uppercase">Powered By</span>
-        <img src="/fwt.jpg" alt="FrontierWox" className="h-9 opacity-95 object-contain" />
+      <div className="fixed bottom-4 right-4 bg-white/95 backdrop-blur-md border border-gray-100 rounded-lg p-2.5 px-4 shadow-xl z-20 flex flex-col mt-2 hover:scale-105 transition-transform cursor-pointer">
+        <a href="https://frontierwox.in" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center group">
+          <span className="text-[8px] font-extrabold text-gray-400 group-hover:text-primary tracking-widest mb-1 text-center w-full uppercase transition-colors">Powered By</span>
+          <img src="/fwt.jpg" alt="FrontierWox" className="h-9 opacity-95 group-hover:opacity-100 object-contain transition-opacity" />
+        </a>
       </div>
     </div>
   );
