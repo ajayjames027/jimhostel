@@ -2024,6 +2024,33 @@ def get_dashboard_summary(current_user):
         "date": today_str
     })
 
+@app.route('/api/system/health', methods=['GET'])
+@token_required
+def get_system_health(current_user):
+    db = get_db()
+    health_data = {}
+    try:
+        # Check backend to MongoDB connection latency & state
+        start_t = datetime.datetime.now()
+        stats = db.command("serverStatus")
+        end_t = datetime.datetime.now()
+        
+        health_data = {
+            "status": "online",
+            "db_ping_ms": int((end_t - start_t).total_seconds() * 1000),
+            "version": stats.get("version", "Unknown"),
+            "connections": stats.get("connections", {}).get("current", 0),
+            "uptime_seconds": stats.get("uptime", 0),
+            "ok": stats.get("ok", 0) == 1.0,
+            "system_time": stats.get("localTime", datetime.datetime.now()).isoformat() if "localTime" in stats else datetime.datetime.now().isoformat()
+        }
+    except Exception as e:
+        health_data = {
+             "status": "offline",
+             "error": str(e),
+             "ok": False
+        }
+    return jsonify(health_data)
 # =====================================================================
 # REPORTS EXPORT BLUEPRINTS
 # =====================================================================

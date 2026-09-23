@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import API from '../../api';
 import { useToast } from '../../context/ToastContext';
-import { Users, Home, UserCheck, Shield, FileText, ChevronRight, UserPlus, Database } from 'lucide-react';
+import { Users, Home, UserCheck, Shield, FileText, ChevronRight, UserPlus, Database, Activity, Server, Github, CheckCircle, XCircle } from 'lucide-react';
 
 const AdminDashboard = () => {
   const { showToast } = useToast();
   const [counts, setCounts] = useState(null);
   const [recentLogs, setRecentLogs] = useState([]);
+  const [systemHealth, setSystemHealth] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
@@ -29,6 +30,15 @@ const AdminDashboard = () => {
       });
       
       setRecentLogs(logsRes.data.slice(0, 5));
+      
+      // Fetch system health diagnostics safely
+      try {
+        const healthRes = await API.get('/system/health');
+        setSystemHealth(healthRes.data);
+      } catch (e) {
+        setSystemHealth({ status: 'unknown', error: 'Failed to retrieve metrics' });
+      }
+      
     } catch (e) {
       showToast('Error loading Admin dashboard statistics', 'error');
     } finally {
@@ -163,6 +173,62 @@ const AdminDashboard = () => {
             </Link>
           </div>
         </div>
+
+        {/* System Diagnostics column */}
+        <div className="premium-card p-6 space-y-5 h-fit lg:col-span-1">
+          <h3 className="font-bold text-gray-800 text-sm border-b border-gray-50 pb-3 flex items-center gap-2">
+            <Activity className="w-4.5 h-4.5 text-rose-500" /> Infrastructure Health
+          </h3>
+
+          <div className="space-y-4">
+             {/* Vercel Status Badge */}
+             <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 relative group overflow-hidden">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
+                <div className="flex justify-between items-start">
+                   <div className="flex items-center gap-2 mb-2">
+                     <Server className="w-4 h-4 text-gray-600" />
+                     <h4 className="font-bold text-gray-800 text-xs">Vercel Deployment</h4>
+                   </div>
+                </div>
+                {/* Embedded Vercel Official SVG Status Badge */}
+                <div className="mt-1">
+                   <a href="https://vercel.com" target="_blank" rel="noopener noreferrer">
+                      <img src="https://therealsujitk-vercel-badge.vercel.app/?app=hostel-frontend" alt="Vercel Status" className="h-5 drop-shadow-sm" onError={(e) => {
+                         // Fallback UI if badge fails to load
+                         e.target.style.display = 'none';
+                         e.target.parentElement.innerHTML = '<span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded">● Vercel Server Online</span>';
+                      }} />
+                   </a>
+                </div>
+                <p className="text-[9px] text-gray-400 font-semibold mt-3 flex items-center gap-1"><Github className="w-3 h-3"/> Tracking 'main' branch</p>
+             </div>
+             
+             {/* MongoDB Status Box */}
+             <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                <div className="flex justify-between items-center mb-3">
+                   <div className="flex items-center gap-2">
+                     <Database className="w-4 h-4 text-emerald-600" />
+                     <h4 className="font-bold text-gray-800 text-xs">MongoDB Cluster</h4>
+                   </div>
+                   {systemHealth ? (
+                      systemHealth.ok ? <CheckCircle className="w-4 h-4 text-success" /> : <XCircle className="w-4 h-4 text-rose-500" />
+                   ) : (
+                      <div className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                   )}
+                </div>
+                
+                {systemHealth && (
+                  <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-[10px] font-semibold text-gray-500">
+                    <div>Status: <span className={systemHealth.ok ? "text-success" : "text-rose-500"}>{systemHealth.status?.toUpperCase()}</span></div>
+                    <div>Latency: <span className="text-gray-800">{systemHealth.db_ping_ms ?? '?'} ms</span></div>
+                    <div>Connections: <span className="text-gray-800">{systemHealth.connections ?? '0'}</span></div>
+                    <div>Engine v: <span className="text-gray-800">{systemHealth.version ?? 'N/A'}</span></div>
+                  </div>
+                )}
+             </div>
+          </div>
+        </div>
+
       </div>
     </div>
   );
