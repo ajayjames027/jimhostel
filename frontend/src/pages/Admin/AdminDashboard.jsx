@@ -110,7 +110,7 @@ const AdminDashboard = () => {
       </div>
 
       {/* Action lists split */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Left column: Recent system audit actions */}
         <div className="premium-card p-6 lg:col-span-2 space-y-4">
           <h3 className="font-bold text-gray-800 text-sm border-b border-gray-50 pb-3 flex items-center gap-2">
