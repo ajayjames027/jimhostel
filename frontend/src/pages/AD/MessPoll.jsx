@@ -13,6 +13,7 @@ const MessPoll = () => {
   const [loading, setLoading] = useState(false);
   const [counts, setCounts] = useState({});
   const [showOnlyDefaulters, setShowOnlyDefaulters] = useState(false);
+  const isFoodCommittee = user?.role === 'FoodCommittee';
   
   useEffect(() => {
     loadConfig();
@@ -94,6 +95,7 @@ const MessPoll = () => {
   };
 
   const toggle = (sId, meal) => {
+    if (isFoodCommittee) return showToast('View only mode', 'warning');
     setCounts(prev => ({
       ...prev,
       [sId]: {
@@ -166,6 +168,7 @@ const MessPoll = () => {
       </div>
 
       {/* POLLING CONFIGURATION */}
+      {!isFoodCommittee && (
       <div className="premium-card p-6 border-l-4 border-l-primary bg-gradient-to-r from-blue-50/50 to-transparent">
         <h3 className="font-extrabold text-gray-800 mb-4 flex items-center gap-2"><Radio className="w-5 h-5 text-primary"/> Active Student Poll Campaign</h3>
         
@@ -195,6 +198,7 @@ const MessPoll = () => {
            </div>
         </div>
       </div>
+      )}
 
       <hr className="border-gray-200 my-6" />
 
@@ -228,6 +232,7 @@ const MessPoll = () => {
         </div>
       </div>
 
+      {!isFoodCommittee && (
       <div className="flex justify-end pr-2 gap-3 mb-4">
         <button onClick={async () => {
              const payload = students.map(s => ({
@@ -253,6 +258,7 @@ const MessPoll = () => {
            <Save className="w-4 h-4"/> Save Modificattions / Master Override
         </button>
       </div>
+      )}
 
       {loading ? <p className="text-center text-gray-500 font-bold py-10 animate-pulse">Loading Date Data...</p> : (
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
@@ -260,11 +266,13 @@ const MessPoll = () => {
             <div key={grp} className="bg-white rounded-3xl border border-gray-100 shadow-sm p-5 pb-2">
                <div className="flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center mb-5 pb-3 border-b">
                   <h3 className="font-extrabold text-xl text-gray-800">{grp} Group</h3>
+                  {!isFoodCommittee && (
                   <div className="text-[10px] uppercase flex gap-1 bg-gray-50 p-1 rounded-lg border">
                      <button onClick={() => setAllMeal(grp, 'breakfast', true)} className="px-2 py-1.5 bg-white shadow-sm text-orange-600 rounded font-bold hover:bg-orange-50 transition-colors">All B'fast</button>
                      <button onClick={() => setAllMeal(grp, 'lunch', true)} className="px-2 py-1.5 bg-white shadow-sm text-amber-600 rounded font-bold hover:bg-amber-50 transition-colors">All Lunch</button>
                      <button onClick={() => setAllMeal(grp, 'dinner', true)} className="px-2 py-1.5 bg-white shadow-sm text-indigo-600 rounded font-bold hover:bg-indigo-50 transition-colors">All Dinner</button>
                   </div>
+                  )}
                </div>
                <div className="space-y-2.5 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar mb-4">
                   {students.filter(s => s.course === grp && (!showOnlyDefaulters || !counts[s._id]?.acknowledged)).map(s => (

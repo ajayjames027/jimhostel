@@ -405,7 +405,7 @@ def handle_maintenance(current_user):
         return jsonify({"message": "Maintenance issue reported."})
     else:
         # GET
-        if current_user.get("role") in ["AD", "Admin", "Director"]:
+        if current_user.get("role") in ["AD", "Admin", "Director", "Maintenance"]:
             issues = list(db["maintenance"].find().sort("timestamp", -1))
         else:
             issues = list(db["maintenance"].find({"student_id": current_user["_id"]}).sort("timestamp", -1))
@@ -423,7 +423,7 @@ def delete_maintenance(current_user, issue_id):
 @app.route('/api/maintenance/<issue_id>', methods=['PUT'])
 @token_required
 def update_maintenance(current_user, issue_id):
-    if current_user.get("role") not in ["AD", "Admin", "Director"]:
+    if current_user.get("role") not in ["AD", "Admin", "Director", "Maintenance"]:
         return jsonify({"message": "Unauthorized"}), 403
     db = get_db()
     data = request.json
@@ -1467,7 +1467,7 @@ def manage_calendar(current_user):
         return jsonify(calendar_dict)
 
     if request.method == 'POST':
-        if current_user['role'] not in ['AD', 'Admin']:
+        if current_user['role'] not in ['AD', 'Admin', 'CalendarAdmin']:
             return jsonify({'message': 'Unauthorized'}), 403
             
         data = request.json

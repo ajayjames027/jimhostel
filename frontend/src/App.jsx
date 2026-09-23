@@ -63,6 +63,9 @@ const RoleGuard = ({ allowedRoles, children }) => {
     if (user.role === 'AD') return <Navigate to="/ad" replace />;
     if (user.role === 'Director') return <Navigate to="/director" replace />;
     if (user.role === 'Student') return <Navigate to="/student" replace />;
+    if (user.role === 'FoodCommittee') return <Navigate to="/mess-poll" replace />;
+    if (user.role === 'CalendarAdmin') return <Navigate to="/calendar" replace />;
+    if (user.role === 'Maintenance') return <Navigate to="/maintenance" replace />;
     return <Navigate to="/login" replace />;
   }
 
@@ -89,6 +92,9 @@ const RootRedirect = () => {
   if (user.role === 'AD') return <Navigate to="/ad" replace />;
   if (user.role === 'Director') return <Navigate to="/director" replace />;
   if (user.role === 'Student') return <Navigate to="/student" replace />;
+  if (user.role === 'FoodCommittee') return <Navigate to="/mess-poll" replace />;
+  if (user.role === 'CalendarAdmin') return <Navigate to="/calendar" replace />;
+  if (user.role === 'Maintenance') return <Navigate to="/maintenance" replace />;
   
   return <Navigate to="/login" replace />;
 };
@@ -157,12 +163,12 @@ function App() {
                 </RoleGuard>
               } />
               <Route path="mess-poll" element={
-                <RoleGuard allowedRoles={['AD', 'Admin']}>
+                <RoleGuard allowedRoles={['AD', 'Admin', 'FoodCommittee']}>
                   <MessPoll />
                 </RoleGuard>
               } />
               <Route path="maintenance" element={
-                <RoleGuard allowedRoles={['AD', 'Admin', 'Director']}>
+                <RoleGuard allowedRoles={['AD', 'Admin', 'Director', 'Maintenance']}>
                   <MaintenanceRegistry />
                 </RoleGuard>
               } />
@@ -234,7 +240,7 @@ function App() {
                 </RoleGuard>
               } />
               <Route path="calendar" element={
-                <RoleGuard allowedRoles={['Admin', 'AD']}>
+                <RoleGuard allowedRoles={['Admin', 'AD', 'CalendarAdmin']}>
                   <CollegeCalendar />
                 </RoleGuard>
               } />

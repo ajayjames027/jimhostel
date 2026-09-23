@@ -82,11 +82,26 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     { to: '/student-settings', label: 'Requests & Settings', icon: Settings }
   ];
 
+  const foodCommitteeLinks = [
+    { to: '/mess-poll', label: 'Poll Results', icon: Coffee }
+  ];
+
+  const maintenanceLinks = [
+    { to: '/maintenance', label: 'Work Orders', icon: Wrench }
+  ];
+
+  const calendarAdminLinks = [
+    { to: '/calendar', label: 'Calendar Planner', icon: Calendar }
+  ];
+
   let links = [];
   if (user?.role === 'AD') links = adLinks;
   else if (user?.role === 'Director') links = directorLinks;
   else if (user?.role === 'Admin') links = adminLinks;
   else if (user?.role === 'Student') links = studentLinks;
+  else if (user?.role === 'FoodCommittee') links = foodCommitteeLinks;
+  else if (user?.role === 'Maintenance') links = maintenanceLinks;
+  else if (user?.role === 'CalendarAdmin') links = calendarAdminLinks;
 
   const activeClass = "flex items-center gap-3 px-4 py-3 rounded-xl bg-blue-50 text-primary font-semibold transition-all duration-200 border-l-4 border-primary shadow-sm";
   const inactiveClass = "flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all duration-200";
