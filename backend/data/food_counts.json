@@ -687,9 +687,9 @@
     "class_name": "I MBA",
     "room_number": "B8",
     "breakfast": false,
-    "lunch": true,
+    "lunch": false,
     "dinner": false,
-    "acknowledged": true,
+    "acknowledged": false,
     "_id": "908f8f57-d631-4856-9213-cf5e20bea097"
   },
   {
@@ -931,7 +931,7 @@
     "breakfast": false,
     "lunch": false,
     "dinner": false,
-    "acknowledged": true,
+    "acknowledged": false,
     "_id": "ef58066e-23f2-408d-8f96-9d94d3c671e5"
   }
 ]
