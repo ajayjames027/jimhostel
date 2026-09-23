@@ -37,6 +37,12 @@ const Login = () => {
         navigate('/director');
       } else if (result.user.role === 'Student') {
         navigate('/student');
+      } else if (result.user.role === 'FoodCommittee') {
+        navigate('/mess-poll');
+      } else if (result.user.role === 'CalendarAdmin') {
+        navigate('/calendar');
+      } else if (result.user.role === 'Maintenance') {
+        navigate('/maintenance');
       }
     } else {
       showToast(result.error, 'error');
