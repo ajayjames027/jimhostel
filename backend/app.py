@@ -1454,6 +1454,35 @@ def modify_egate_pass(current_user, pass_id):
         return jsonify({'message': f'Pass {data.get("status")}'})
 
 # =====================================================================
+# CALENDAR / DAY ORDER MANAGEMENT
+# =====================================================================
+@app.route('/api/calendar', methods=['GET', 'POST'])
+@token_required
+def manage_calendar(current_user):
+    db = get_db()
+    
+    if request.method == 'GET':
+        calendar_data = list(db.calendar.find({}, {'_id': 0}))
+        calendar_dict = {item['date']: item for item in calendar_data}
+        return jsonify(calendar_dict)
+
+    if request.method == 'POST':
+        if current_user['role'] not in ['AD', 'Admin']:
+            return jsonify({'message': 'Unauthorized'}), 403
+            
+        data = request.json
+        date = data.get('date') # 'YYYY-MM-DD'
+        day_order = data.get('day_order')
+        
+        db.calendar.update_one(
+            {"date": date},
+            {"$set": {"date": date, "day_order": day_order, "updated_by": current_user['username'], "updated_at": datetime.datetime.utcnow().isoformat()}},
+            upsert=True
+        )
+        log_action(current_user['_id'], current_user['username'], "Update Calendar", f"Set {date} to Day Order {day_order}")
+        return jsonify({'message': 'Day Order updated successfully'})
+
+# =====================================================================
 # LEAVE MANAGEMENT
 # =====================================================================
 

@@ -31,6 +31,7 @@ const StudentDashboard = () => {
   const [savingMeals, setSavingMeals] = useState(false);
   const [myProfile, setMyProfile] = useState(null);
   const [myLeaves, setMyLeaves] = useState([]);
+  const [todayDayOrder, setTodayDayOrder] = useState(null);
 
   const [leaveForm, setLeaveForm] = useState({ leave_from: '', leave_to: '', reason: '' });
 
@@ -98,6 +99,12 @@ const StudentDashboard = () => {
         // Get the latest active express pass that hasn't expired yet for today
         const validPasses = epRes.data.filter(p => p.status === 'Active');
         if (validPasses.length > 0) setActiveExpressPass(validPasses[0]);
+        
+        try {
+           const calRes = await API.get('/calendar');
+           const dt = new Date().toISOString().split('T')[0];
+           setTodayDayOrder(calRes.data[dt]?.day_order || null);
+        } catch(e) {}
       } catch(e) {}
     }
 
@@ -212,9 +219,31 @@ const StudentDashboard = () => {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-3xl p-8 text-white shadow-xl shadow-blue-900/20">
-        <h2 className="font-extrabold text-3xl tracking-tight mb-2">Welcome, {user.name}</h2>
-        <p className="text-blue-100 font-medium">Room {myProfile?.room_number || '...'} | {myProfile?.course || '...'} | Manage your hostel requests here.</p>
+      <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-3xl p-8 text-white shadow-xl shadow-blue-900/20 relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-8 hidden md:block">
+           {todayDayOrder ? (
+               <div className="bg-white/10 backdrop-blur-sm border border-white/20 px-6 py-4 rounded-2xl text-center shadow-inner">
+                   <p className="text-[10px] font-extrabold uppercase tracking-widest text-blue-200 mb-1">Today's Day Order</p>
+                   <p className="text-4xl font-black text-white">{todayDayOrder === 'Holiday' ? 'Holiday' : `Order ${todayDayOrder}`}</p>
+               </div>
+           ) : (
+               <div className="bg-white/5 backdrop-blur-sm border border-white/10 px-6 py-4 rounded-2xl text-center">
+                   <p className="text-[10px] font-bold uppercase tracking-widest text-blue-300">College Calendar</p>
+                   <p className="text-xl font-bold text-white/50 mt-1">No Schedule</p>
+               </div>
+           )}
+        </div>
+        <div className="relative z-10">
+          <h2 className="font-extrabold text-3xl tracking-tight mb-2">Welcome, {user.name}</h2>
+          <p className="text-blue-100 font-medium">Room {myProfile?.room_number || '...'} | {myProfile?.course || '...'} | Manage your hostel requests here.</p>
+        </div>
+        {/* Mobile Day Order View */}
+        {todayDayOrder && (
+            <div className="mt-6 md:hidden w-fit bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-2 rounded-xl">
+               <p className="text-[9px] font-extrabold uppercase tracking-widest text-blue-200 mb-0.5">Today's Day Order</p>
+               <p className="text-2xl font-black text-white">{todayDayOrder === 'Holiday' ? 'Holiday' : `Order ${todayDayOrder}`}</p>
+            </div>
+        )}
       </div>
       
       {announcements.length > 0 && (

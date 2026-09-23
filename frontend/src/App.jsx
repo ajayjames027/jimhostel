@@ -39,6 +39,7 @@ import StudentSettings from './pages/Student/StudentSettings';
 import FeedbackViewer from './pages/Shared/FeedbackViewer';
 import EGatePass from './pages/AD/EGatePass';
 import MyGatePasses from './pages/Student/MyGatePasses';
+import CollegeCalendar from './pages/AD/CollegeCalendar';
 
 // Guard for protected routes checking roles
 const RoleGuard = ({ allowedRoles, children }) => {
@@ -230,6 +231,11 @@ function App() {
               <Route path="egate-pass" element={
                 <RoleGuard allowedRoles={['Admin', 'AD']}>
                   <EGatePass />
+                </RoleGuard>
+              } />
+              <Route path="calendar" element={
+                <RoleGuard allowedRoles={['Admin', 'AD']}>
+                  <CollegeCalendar />
                 </RoleGuard>
               } />
               <Route path="my-gate-passes" element={
