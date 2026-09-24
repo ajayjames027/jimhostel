@@ -338,7 +338,15 @@ const StudentDashboard = () => {
                               <div>
                                   <p className="font-bold text-gray-900 text-sm">{new Date(att.date).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' })}</p>
                                   <p className="text-[11px] uppercase font-bold tracking-widest text-gray-400 mt-1">
-                                      Taken at: {att.timestamp ? new Date(att.timestamp.split('+')[0].split('Z')[0]).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }) : 'N/A'}
+                                      Taken at: {att.timestamp ? (() => {
+                                          let ts = att.timestamp;
+                                          if (ts.includes('+00:00')) {
+                                              ts = ts.replace('+00:00', ''); // Corrupted local string logged as UTC
+                                          } else if (!ts.includes('+') && !ts.includes('Z')) {
+                                              ts = ts + 'Z'; // Raw UTC string logged without timezone marker
+                                          }
+                                          return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+                                      })() : 'N/A'}
                                   </p>
                               </div>
                               {att.status === 'Present' && <span className="bg-emerald-50 text-emerald-600 border border-emerald-100 px-3 py-1.5 rounded-lg text-xs font-bold flex gap-1 items-center"><CheckCircle2 className="w-3.5 h-3.5"/> Present</span>}
