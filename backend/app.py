@@ -1166,8 +1166,9 @@ def mark_attendance(current_user):
     if not room:
         return jsonify({'message': f"Room {room_number} not found."}), 404
         
-    timestamp_time = datetime.datetime.now().strftime('%H:%M:%S')
-    timestamp = f"{date_str}T{timestamp_time}+00:00"
+    ist = datetime.timezone(datetime.timedelta(hours=5, minutes=30))
+    current_time_ist = datetime.datetime.now(ist)
+    timestamp = f"{date_str}T{current_time_ist.strftime('%H:%M:%S')}+05:30"
     marked_by = current_user['name']
     
     for s_id, status in attendance_data.items():
@@ -1209,8 +1210,9 @@ def mark_attendance(current_user):
         # Link to auto register Late Entries
         if final_status == "Late Entry":
             # Synthesize entry time using the rollcall date to avoid pushing it to 'today' instead of past days
-            current_t = datetime.datetime.now().strftime("%H:%M:%S")
-            hist_entry = f"{date_str}T{current_t}"
+            ist = datetime.timezone(datetime.timedelta(hours=5, minutes=30))
+            current_t = datetime.datetime.now(ist).strftime("%H:%M:%S")
+            hist_entry = f"{date_str}T{current_t}+05:30"
             db["late_entries"].update_one(
                 {"student_id": s_id, "entry_time": {"$regex": f"^{date_str}"}},
                 {"$set": {
@@ -1251,19 +1253,21 @@ def update_attendance_record(current_user, att_id):
     if not record:
         return jsonify({'message': 'Attendance record not found.'}), 404
         
+    ist = datetime.timezone(datetime.timedelta(hours=5, minutes=30))
+    current_time_ist = datetime.datetime.now(ist)
+    
     db["attendance"].update_one(
         {"_id": att_id},
         {"$set": {
             "status": new_status,
             "remarks": new_remarks,
             "marked_by": f"{current_user['name']} (Edited)",
-            "timestamp": datetime.datetime.now().isoformat()
+            "timestamp": f"{record['date']}T{current_time_ist.strftime('%H:%M:%S')}+05:30"
         }}
     )
     
     if new_status == "Late Entry":
-        current_t = datetime.datetime.now().strftime("%H:%M:%S")
-        hist_entry = f"{record['date']}T{current_t}"
+        hist_entry = f"{record['date']}T{current_time_ist.strftime('%H:%M:%S')}+05:30"
         db["late_entries"].update_one(
             {"student_id": record["student_id"], "entry_time": {"$regex": f"^{record['date']}"}},
             {"$set": {
