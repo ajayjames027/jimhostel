@@ -214,10 +214,11 @@ const MessPoll = () => {
            <div className="flex-1 w-full">
               <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Viewing Date Data</label>
               <select value={date} onChange={e => setDate(e.target.value)} className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg w-full text-sm font-bold h-11 text-gray-800">
-                 <option value={date}>{date ? date.split('-').reverse().join('-') : ''} (Selected)</option>
+                 {/* Only display the selected option if it's not in the activeDates list (fallback) */}
+                 {!activeDates.includes(date) && <option value={date}>{date ? date.split('-').reverse().join('-') : ''} (Selected)</option>}
                  <optgroup label="Active Campaign Dates">
                  {activeDates.map(d => (
-                    <option key={d.split('-').reverse().join('-')} value={d.split('-').reverse().join('-')}>{d.split('-').reverse().join('-')}</option>
+                    <option key={d} value={d}>{d.split('-').reverse().join('-')}</option>
                  ))}
                  </optgroup>
               </select>
@@ -243,10 +244,8 @@ const MessPoll = () => {
                  acknowledged: false
              }));
              try {
-                await API.post(`/food-poll/${date.split('-').reverse().join('-')}`, { records: payload });
-             } catch(e) {
-                // If it fails with reversed format, try original
                 await API.post(`/food-poll/${date}`, { records: payload });
+             } catch(e) {
              }
              
              showToast('Poll manually unlocked for all students', 'success');
