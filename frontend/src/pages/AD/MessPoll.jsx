@@ -264,7 +264,21 @@ const MessPoll = () => {
           {['I MBA', 'II MBA'].map(grp => (
             <div key={grp} className="bg-white rounded-3xl border border-gray-100 shadow-sm p-5 pb-2">
                <div className="flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center mb-5 pb-3 border-b">
-                  <h3 className="font-extrabold text-xl text-gray-800">{grp} Group</h3>
+                  <div className="flex items-center gap-3">
+                      <h3 className="font-extrabold text-xl text-gray-800">{grp} Group</h3>
+                      <button 
+                         onClick={() => {
+                             const unpolled = students.filter(s => s.course === grp && !counts[s._id]?.acknowledged);
+                             if(unpolled.length === 0) return showToast(`All ${grp} students have polled!`, 'info');
+                             const text = `*Pending Mess Poll Responses (${grp})*\nPlease submit your choices immediately:\n\n` + unpolled.map((s, idx) => `${idx + 1}. ${s.name}`).join('\n');
+                             navigator.clipboard.writeText(text);
+                             showToast(`Copied ${unpolled.length} ${grp} defaulters to clipboard`, 'success');
+                         }}
+                         className="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-100 rounded-lg text-xs font-bold transition-colors"
+                      >
+                         Copy Defaulters List
+                      </button>
+                  </div>
                   {!isFoodCommittee && (
                   <div className="text-[10px] uppercase flex gap-1 bg-gray-50 p-1 rounded-lg border">
                      <button onClick={() => setAllMeal(grp, 'breakfast', true)} className="px-2 py-1.5 bg-white shadow-sm text-orange-600 rounded font-bold hover:bg-orange-50 transition-colors">All B'fast</button>
