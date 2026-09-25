@@ -89,13 +89,17 @@ const StudentDashboard = () => {
   useEffect(() => {
     const fetchMe = async () => {
       try {
-        const res = await API.get(`/students/${user.username}`);
+        const [res, ares, lres, epRes] = await Promise.all([
+            API.get(`/students/${user.username}`),
+            API.get(`/announcements`),
+            API.get(`/my-leaves`),
+            API.get('/egate-pass')
+        ]);
+        
         setMyProfile(res.data);
-        const ares = await API.get(`/announcements`);
         setAnnouncements(ares.data);
-        const lres = await API.get(`/my-leaves`);
         setMyLeaves(lres.data);
-        const epRes = await API.get('/egate-pass');
+        
         // Get the latest active express pass that hasn't expired yet for today
         const validPasses = epRes.data.filter(p => p.status === 'Active');
         if (validPasses.length > 0) setActiveExpressPass(validPasses[0]);

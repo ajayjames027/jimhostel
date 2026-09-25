@@ -42,6 +42,28 @@ const DefaultersList = () => {
     );
   });
 
+  const exportCSV = () => {
+      const headers = ['Student Name', 'Room', 'Attendance %', 'Risk Level'];
+      const rows = filteredDefaulters.map(d => [d.name, d.room_number, d.attendance_percentage, d.risk_level]);
+      const csvContent = "data:text/csv;charset=utf-8," 
+          + headers.join(",") + "\n" 
+          + rows.map(e => e.join(",")).join("\n");
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `Defaulters_Below_${threshold}%_${new Date().toLocaleDateString()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      showToast('Exported list to CSV successfully.', 'success');
+  };
+
+  const copyAlertTemplate = (d) => {
+      const text = `URGENT ALERT:\nHello ${d.name} (Room ${d.room_number}). Your current attendance percentage has drastically fallen to ${d.attendance_percentage}%. This places you in the "${d.risk_level}" tracking tier. Please meet the AD immediately.`;
+      navigator.clipboard.writeText(text);
+      showToast('Copied Auto-Alert message to clipboard!', 'success');
+  };
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -64,6 +86,9 @@ const DefaultersList = () => {
             <option value="75.0">Below 75% (High Risk)</option>
             <option value="65.0">Below 65% (Critical)</option>
           </select>
+          <button onClick={exportCSV} className="ml-2 px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl text-xs font-bold shadow-md transition-all">
+             Export to CSV
+          </button>
         </div>
       </div>
 
@@ -127,12 +152,15 @@ const DefaultersList = () => {
                         {d.risk_level} Risk
                       </span>
                     </td>
-                    <td className="p-4">
+                    <td className="p-4 flex gap-4 mt-2">
+                      <button onClick={() => copyAlertTemplate(d)} className="text-orange-500 hover:text-orange-600 font-bold inline-flex items-center gap-1 group">
+                         <AlertTriangle className="w-3.5 h-3.5" /> Copy Alert
+                      </button>
                       <Link
                         to={`/students/${d.student_id}`}
                         className="text-primary hover:text-primary-hover font-bold inline-flex items-center gap-1 group"
                       >
-                        Inspect profile
+                        Inspect
                         <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
                       </Link>
                     </td>
