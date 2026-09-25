@@ -213,15 +213,20 @@ const MessPoll = () => {
         <div className="flex flex-col md:flex-row gap-4 h-full items-end">
            <div className="flex-1 w-full">
               <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Viewing Date Data</label>
-              <select value={date} onChange={e => setDate(e.target.value)} className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg w-full text-sm font-bold h-11 text-gray-800">
-                 {/* Only display the selected option if it's not in the activeDates list (fallback) */}
-                 {!activeDates.includes(date) && <option value={date}>{date ? date.split('-').reverse().join('-') : ''} (Selected)</option>}
-                 <optgroup label="Active Campaign Dates">
-                 {activeDates.map(d => (
-                    <option key={d} value={d}>{d.split('-').reverse().join('-')}</option>
-                 ))}
-                 </optgroup>
-              </select>
+              <div className="flex gap-2">
+                  <select value={date} onChange={e => setDate(e.target.value)} className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg flex-1 text-sm font-bold h-11 text-gray-800">
+                     {/* Only display the selected option if it's not in the activeDates list (fallback) */}
+                     {!activeDates.includes(date) && <option value={date}>{date ? date.split('-').reverse().join('-') : ''} (Selected)</option>}
+                     <optgroup label="Active Campaign Dates">
+                     {activeDates.map(d => (
+                        <option key={d} value={d}>{d.split('-').reverse().join('-')}</option>
+                     ))}
+                     </optgroup>
+                  </select>
+                  <button onClick={() => downloadPDF(date)} title="Download Finalized Full Report" className="px-4 bg-indigo-50 border border-indigo-100 text-indigo-600 rounded-lg font-bold text-sm hover:bg-indigo-600 hover:text-white transition-colors h-11 flex items-center justify-center shadow-sm">
+                      <Download className="w-4 h-4"/>
+                  </button>
+              </div>
            </div>
         </div>
         <div className="flex gap-4 p-4 rounded-xl bg-orange-50 border border-orange-100 justify-between h-full shadow-inner">
