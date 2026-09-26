@@ -2224,11 +2224,22 @@ def active_poll_config(current_user):
         if current_user.get('role') not in ['Admin', 'AD']:
             return jsonify({'message': 'Unauthorized'}), 403
         data = request.json
-        db["config"].update_one({"_id": "mess_poll_date"}, {"$set": {"date": data.get('date')}}, upsert=True)
-        return jsonify({'message': 'Active poll date set.'})
+        # data.get('campaigns') will be the new array of objects from the frontend
+        db["config"].update_one(
+            {"_id": "mess_poll_date"}, 
+            {"$set": {"campaigns": data.get('campaigns', [])}}, 
+            upsert=True
+        )
+        return jsonify({'message': 'Active poll configuration set.'})
     else:
         doc = db["config"].find_one({"_id": "mess_poll_date"})
-        return jsonify({"date": doc.get("date", "") if doc else ""})
+        # Legacy support: if existing date field exists but campaigns doesn't, map it over
+        campaigns = doc.get("campaigns", []) if doc else []
+        if doc and not campaigns and doc.get("date"):
+            dts = doc.get("date") if isinstance(doc.get("date"), list) else [doc.get("date")]
+            campaigns = [{"date": d, "status": "active", "deadline": ""} for d in dts if d]
+            
+        return jsonify({"campaigns": campaigns})
 
 @app.route('/api/food-poll/summary/<date>', methods=['GET'])
 @token_required

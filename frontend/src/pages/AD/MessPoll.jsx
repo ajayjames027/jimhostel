@@ -8,7 +8,7 @@ const MessPoll = () => {
   const { showToast } = useToast();
   const { user } = useAuth();
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]); // Viewing Date
-  const [activeDates, setActiveDates] = useState([]); // Array of active dates
+  const [campaigns, setCampaigns] = useState([]); // Array of {date, status, deadline}
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [counts, setCounts] = useState({});
@@ -26,42 +26,34 @@ const MessPoll = () => {
   const loadConfig = async () => {
     try {
       const res = await API.get('/food-poll/config');
-      if (res.data.date) {
-         // It could be a string or array (legacy migration)
-         const dt = Array.isArray(res.data.date) ? res.data.date : [res.data.date];
-         setActiveDates(dt.filter(Boolean));
-         if (dt.length > 0 && dt[0]) setDate(dt[0]);
+      if (res.data.campaigns) {
+         setCampaigns(res.data.campaigns);
+         const active = res.data.campaigns.filter(c => c.status !== 'unpublished');
+         if (active.length > 0 && active[0]) setDate(active[0].date);
       }
     } catch(e) {}
   };
 
   const addActiveDate = (d) => {
-      if(!d || activeDates.includes(d)) return;
-      setActiveDates(prev => [...prev, d].sort());
+      if(!d || campaigns.find(c => c.date === d)) return;
+      setCampaigns(prev => [...prev, { date: d, status: 'active', deadline: '' }].sort((a,b) => a.date.localeCompare(b.date)));
   };
   const removeActiveDate = (d) => {
-      setActiveDates(prev => prev.filter(x => x !== d));
+      setCampaigns(prev => prev.filter(x => x.date !== d));
+  };
+  
+  const updateCampaign = (d, key, val) => {
+      setCampaigns(prev => prev.map(c => c.date === d ? {...c, [key]: val} : c));
   };
 
-  const activatePoll = async () => {
-    if (activeDates.length === 0) {
-        showToast('Please add at least one date to the active list', 'warning');
-        return;
-    }
+  const saveConfig = async (newCampaigns = campaigns) => {
     try {
-       await API.post('/food-poll/config', { date: activeDates });
-       showToast(`Poll successfully activated for ${activeDates.length} day(s).`, 'success');
+       await API.post('/food-poll/config', { campaigns: newCampaigns });
+       setCampaigns(newCampaigns);
+       showToast(`Poll config securely updated.`, 'success');
     } catch(e) {
-       showToast('Failed to activate poll', 'error');
+       showToast('Failed to sync config', 'error');
     }
-  };
-
-  const deactivatePoll = async () => {
-    try {
-       await API.post('/food-poll/config', { date: [] });
-       setActiveDates([]);
-       showToast('Poll deactivated.', 'info');
-    } catch(e) {}
   };
 
   const loadData = async () => {
@@ -128,17 +120,18 @@ const MessPoll = () => {
     }
   };
 
-  const totals = { I_MBA: { b: 0, l: 0, d: 0 }, II_MBA: { b: 0, l: 0, d: 0 }};
+  const totals = { 
+    I_MBA: { b: 0, l: 0, d: 0, responded: 0, pending: 0 }, 
+    II_MBA: { b: 0, l: 0, d: 0, responded: 0, pending: 0 }
+  };
   Object.values(counts).forEach(c => {
-    if(c.class_name === 'I MBA') {
-      if (c.breakfast) totals.I_MBA.b++;
-      if (c.lunch) totals.I_MBA.l++;
-      if (c.dinner) totals.I_MBA.d++;
-    } else {
-      if (c.breakfast) totals.II_MBA.b++;
-      if (c.lunch) totals.II_MBA.l++;
-      if (c.dinner) totals.II_MBA.d++;
-    }
+    const grpK = c.class_name === 'I MBA' ? 'I_MBA' : 'II_MBA';
+    if (c.breakfast) totals[grpK].b++;
+    if (c.lunch) totals[grpK].l++;
+    if (c.dinner) totals[grpK].d++;
+    
+    if (c.acknowledged) totals[grpK].responded++;
+    else totals[grpK].pending++;
   });
 
   const downloadPDF = async (downloadDate) => {
@@ -170,16 +163,31 @@ const MessPoll = () => {
       {/* POLLING CONFIGURATION */}
       {!isFoodCommittee && (
       <div className="premium-card p-6 border-l-4 border-l-primary bg-gradient-to-r from-blue-50/50 to-transparent">
-        <h3 className="font-extrabold text-gray-800 mb-4 flex items-center gap-2"><Radio className="w-5 h-5 text-primary"/> Active Student Poll Campaign</h3>
+        <h3 className="font-extrabold text-gray-800 mb-4 flex items-center gap-2"><Radio className="w-5 h-5 text-primary"/> Active Student Poll Campaigns</h3>
         
-        <div className="flex flex-wrap gap-3 mb-4">
-           {activeDates.length === 0 && <span className="text-sm font-semibold text-gray-400 border border-dashed border-gray-300 px-4 py-2 rounded-xl">No days currently queued. Poll is closed.</span>}
-           {activeDates.map(d => (
-              <span key={d.split('-').reverse().join('-')} className="px-3 py-1.5 bg-white border border-primary/20 text-primary rounded-lg font-bold text-sm shadow-sm flex items-center gap-2">
-                 <Calendar className="w-4 h-4"/> {d.split('-').reverse().join('-')}
-                 <button onClick={() => downloadPDF(d)} title="Download Finalized List PDF" className="text-gray-400 hover:text-indigo-600 transition-colors ml-1"><Download className="w-4 h-4"/></button>
-                 <button onClick={() => removeActiveDate(d)} title="Remove Day" className="text-gray-400 hover:text-red-500 transition-colors"><Trash2 className="w-4 h-4"/></button>
-              </span>
+        <div className="flex flex-col gap-3 mb-6">
+           {campaigns.length === 0 && <span className="text-sm font-semibold text-gray-400 border border-dashed border-gray-300 px-4 py-3 rounded-xl">No campaigns are currently loaded.</span>}
+           {campaigns.map(c => (
+              <div key={c.date} className="px-4 py-3 bg-white border border-primary/20 rounded-xl shadow-sm flex flex-col sm:flex-row gap-4 justify-between items-center">
+                 <div className="flex items-center gap-3">
+                     <span className="font-bold text-sm text-gray-800 flex items-center gap-1.5"><Calendar className="w-4 h-4 text-primary"/> {c.date.split('-').reverse().join('-')}</span>
+                     <span className={`px-2 py-0.5 rounded text-[10px] font-black tracking-widest uppercase ${c.status === 'active' ? 'bg-emerald-100 text-emerald-600' : c.status === 'stopped' ? 'bg-amber-100 text-amber-600' : 'bg-gray-200 text-gray-500'}`}>
+                         {c.status}
+                     </span>
+                 </div>
+                 
+                 <div className="flex items-center gap-2 w-full sm:w-auto">
+                     <div className="flex-1 sm:w-32">
+                         <input type="datetime-local" value={c.deadline || ''} onChange={e => updateCampaign(c.date, 'deadline', e.target.value)} className="w-full px-2 py-1.5 border rounded text-xs font-semibold" title="Auto-disable deadline time" />
+                     </div>
+                     <select value={c.status} onChange={e => updateCampaign(c.date, 'status', e.target.value)} className="border px-2 py-1.5 rounded text-xs font-bold text-gray-700 bg-gray-50">
+                        <option value="active">Active (Polling)</option>
+                        <option value="stopped">Stopped (Read-only)</option>
+                        <option value="unpublished">Unpublished (Hidden)</option>
+                     </select>
+                     <button onClick={() => removeActiveDate(c.date)} title="Delete completely" className="text-gray-400 hover:text-red-500 transition-colors p-1"><Trash2 className="w-4 h-4"/></button>
+                 </div>
+              </div>
            ))}
         </div>
 
@@ -193,8 +201,7 @@ const MessPoll = () => {
            </div>
            
            <div className="flex gap-3 mt-4 md:mt-0 flex-1 md:justify-end">
-             {activeDates.length > 0 && <button onClick={deactivatePoll} className="px-5 py-2.5 h-11 bg-white border border-rose-200 text-rose-600 rounded-lg font-bold text-sm hover:bg-rose-50 shadow-sm transition-all" title="Locks poll and prevents new entries">Finalize & Close Poll</button>}
-             <button onClick={activatePoll} className="px-5 py-2.5 h-11 bg-primary text-white rounded-lg font-bold text-sm hover:bg-primary-hover shadow-md transition-all">Publish Poll to Students</button>
+             <button onClick={() => saveConfig()} className="px-6 py-2.5 h-11 bg-primary text-white rounded-lg font-bold text-sm hover:bg-primary-hover shadow-md transition-all flex items-center gap-2"><Save className="w-4 h-4" /> Save Campaign Configs</button>
            </div>
         </div>
       </div>
@@ -209,17 +216,16 @@ const MessPoll = () => {
              {showOnlyDefaulters ? "Show All Students" : "Show Defaulters Only"}
          </button>
       </div>
-      <div className="premium-card p-5 grid grid-cols-1 xl:grid-cols-2 gap-6 items-center">
-        <div className="flex flex-col md:flex-row gap-4 h-full items-end">
-           <div className="flex-1 w-full">
+       <div className="premium-card p-5 grid grid-cols-1 gap-6 items-start">
+        <div className="flex flex-col md:flex-row gap-4">
+           <div className="w-full md:w-1/3">
               <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Viewing Date Data</label>
               <div className="flex gap-2">
                   <select value={date} onChange={e => setDate(e.target.value)} className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg flex-1 text-sm font-bold h-11 text-gray-800">
-                     {/* Only display the selected option if it's not in the activeDates list (fallback) */}
-                     {!activeDates.includes(date) && <option value={date}>{date ? date.split('-').reverse().join('-') : ''} (Selected)</option>}
+                     {!campaigns.some(c => c.date === date) && <option value={date}>{date ? date.split('-').reverse().join('-') : ''} (Selected)</option>}
                      <optgroup label="Active Campaign Dates">
-                     {activeDates.map(d => (
-                        <option key={d} value={d}>{d.split('-').reverse().join('-')}</option>
+                     {campaigns.map(c => (
+                        <option key={c.date} value={c.date}>{c.date.split('-').reverse().join('-')} ({c.status})</option>
                      ))}
                      </optgroup>
                   </select>
@@ -228,13 +234,38 @@ const MessPoll = () => {
                   </button>
               </div>
            </div>
-        </div>
-        <div className="flex gap-4 p-4 rounded-xl bg-orange-50 border border-orange-100 justify-between h-full shadow-inner">
-           <div className="text-center flex-1 flex flex-col justify-center"><p className="text-orange-500 font-bold text-2xl leading-none">{totals.I_MBA.b + totals.II_MBA.b}</p><p className="text-[10px] uppercase font-extrabold tracking-wider text-gray-600 mt-2">Total B'fast</p></div>
-           <div className="w-px bg-orange-200/50"></div>
-           <div className="text-center flex-1 flex flex-col justify-center"><p className="text-amber-600 font-bold text-2xl leading-none">{totals.I_MBA.l + totals.II_MBA.l}</p><p className="text-[10px] uppercase font-extrabold tracking-wider text-gray-600 mt-2">Total Lunch</p></div>
-           <div className="w-px bg-orange-200/50"></div>
-           <div className="text-center flex-1 flex flex-col justify-center"><p className="text-indigo-600 font-bold text-2xl leading-none">{totals.I_MBA.d + totals.II_MBA.d}</p><p className="text-[10px] uppercase font-extrabold tracking-wider text-gray-600 mt-2">Total Dinner</p></div>
+           
+           <div className="flex-1 grid grid-cols-2 gap-4">
+               {/* I MBA Stats */}
+               <div className="bg-orange-50 border border-orange-100 p-4 rounded-xl shadow-inner">
+                   <h4 className="font-extrabold text-orange-600 text-sm mb-3">I MBA Participation</h4>
+                   <div className="flex justify-between items-center bg-white p-2 border border-orange-100 rounded-lg">
+                       <div className="text-center w-1/2 border-r border-gray-100">
+                           <p className="font-black text-xl text-emerald-500 leading-none">{totals.I_MBA.responded}</p>
+                           <p className="text-[9px] uppercase font-bold text-gray-400 mt-1 mt-1">Responded</p>
+                       </div>
+                       <div className="text-center w-1/2">
+                           <p className="font-black text-xl text-rose-500 leading-none">{totals.I_MBA.pending}</p>
+                           <p className="text-[9px] uppercase font-bold text-gray-400 mt-1">Pending/Defaulter</p>
+                       </div>
+                   </div>
+               </div>
+
+               {/* II MBA Stats */}
+               <div className="bg-indigo-50 border border-indigo-100 p-4 rounded-xl shadow-inner">
+                   <h4 className="font-extrabold text-indigo-600 text-sm mb-3">II MBA Participation</h4>
+                   <div className="flex justify-between items-center bg-white p-2 border border-indigo-100 rounded-lg">
+                       <div className="text-center w-1/2 border-r border-gray-100">
+                           <p className="font-black text-xl text-emerald-500 leading-none">{totals.II_MBA.responded}</p>
+                           <p className="text-[9px] uppercase font-bold text-gray-400 mt-1">Responded</p>
+                       </div>
+                       <div className="text-center w-1/2">
+                           <p className="font-black text-xl text-rose-500 leading-none">{totals.II_MBA.pending}</p>
+                           <p className="text-[9px] uppercase font-bold text-gray-400 mt-1">Pending/Defaulter</p>
+                       </div>
+                   </div>
+               </div>
+           </div>
         </div>
       </div>
 

@@ -172,19 +172,32 @@ def generate_pdf_report(report_type, data):
 
             headers = ["Student Name", "Room Number", "Group", "Breakfast", "Lunch", "Dinner"]
             col_widths = [2.0*inch, 1.2*inch, 1.0*inch, 1.0*inch, 1.0*inch, 1.0*inch]
-            rows = [[Paragraph(h, header_style) for h in headers]]
-            for item in data:
-                b = "Yes" if item.get('breakfast') else "No"
-                l = "Yes" if item.get('lunch') else "No"
-                d = "Yes" if item.get('dinner') else "No"
-                rows.append([
-                    Paragraph(item.get('name', ''), body_style),
-                    Paragraph(item.get('room_number', ''), body_style),
-                    Paragraph(item.get('class_name', ''), body_style),
-                    Paragraph(b, body_style),
-                    Paragraph(l, body_style),
-                    Paragraph(d, body_style)
-                ])
+            rows = []
+            
+            # Split data by course
+            i_mba_data = [d for d in data if d.get('class_name') == 'I MBA']
+            ii_mba_data = [d for d in data if d.get('class_name') == 'II MBA']
+            other_data = [d for d in data if d.get('class_name') not in ['I MBA', 'II MBA']]
+            
+            groups_to_render = [("I MBA", i_mba_data), ("II MBA", ii_mba_data), ("Other", other_data)]
+            
+            for group_name, group_data in groups_to_render:
+                if not group_data: continue
+                # Subheader for group
+                rows.append([Paragraph(f"<b>{group_name} Students</b>", header_style), "", "", "", "", ""])
+                rows.append([Paragraph(h, header_style) for h in headers])
+                for item in group_data:
+                    b = "Yes" if item.get('breakfast') else "No"
+                    l = "Yes" if item.get('lunch') else "No"
+                    d = "Yes" if item.get('dinner') else "No"
+                    rows.append([
+                        Paragraph(item.get('name', ''), body_style),
+                        Paragraph(item.get('room_number', ''), body_style),
+                        Paragraph(item.get('class_name', ''), body_style),
+                        Paragraph(b, body_style),
+                        Paragraph(l, body_style),
+                        Paragraph(d, body_style)
+                    ])
         else:
             headers = ["Info"]
             col_widths = [8.0*inch]

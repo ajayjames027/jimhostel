@@ -27,6 +27,7 @@ const StudentDashboard = () => {
   const { showToast } = useToast();
   
   const [activeDates, setActiveDates] = useState([]);
+  const [campaigns, setCampaigns] = useState([]);
   const [polls, setPolls] = useState({});
   const [savingMeals, setSavingMeals] = useState(false);
   const [myProfile, setMyProfile] = useState(null);
@@ -119,12 +120,17 @@ const StudentDashboard = () => {
     const loadActivePolls = async () => {
       try {
         const configRes = await API.get('/food-poll/config');
-        if (configRes.data.date) {
-           const dts = Array.isArray(configRes.data.date) ? configRes.data.date : [configRes.data.date];
-           setActiveDates(dts.filter(Boolean));
+        if (configRes.data.campaigns) {
+           const campaigns = configRes.data.campaigns;
+           // Filter for campaigns that are active or stopped (stopped so they can view but not edit)
+           const visibleCampaigns = campaigns.filter(c => c.status === 'active' || c.status === 'stopped');
+           
+           setActiveDates(visibleCampaigns.map(c => c.date));
+           setCampaigns(visibleCampaigns); // We will need to store this state to check deadlines later
            
            const initialPolls = {};
-           await Promise.all(dts.filter(Boolean).map(async (d) => {
+           await Promise.all(visibleCampaigns.map(async (camp) => {
+               const d = camp.date;
                const res = await API.get(`/food-poll/${d}`);
                const me = res.data.find(r => r.student_id === user.username);
                if (me) {
@@ -145,8 +151,19 @@ const StudentDashboard = () => {
     loadActivePolls();
   }, [user.username]);
 
+  const isCampaignLocked = (d) => {
+      const camp = campaigns.find(c => c.date === d);
+      if (!camp || camp.status === 'stopped') return true;
+      if (camp.deadline) {
+          if (new Date() > new Date(camp.deadline)) return true;
+      }
+      return false;
+  };
+
   const toggleMeal = (d, type) => {
       if (polls[d] && polls[d].hasAcknowledged) return; 
+      if (isCampaignLocked(d)) return showToast('This poll has been locked by administration.', 'warning');
+      
       setPolls(prev => {
           const defaultState = { breakfast: false, lunch: false, dinner: false, hasAcknowledged: false };
           const prevState = prev[d] || defaultState;
@@ -164,9 +181,12 @@ const StudentDashboard = () => {
     if(activeDates.length === 0) return;
     setSavingMeals(true);
     let success = true;
+    let savedAny = false;
     
     for (const d of activeDates) {
         if (polls[d]?.hasAcknowledged) continue;
+        if (isCampaignLocked(d)) continue;
+        savedAny = true;
         try {
           const records = [{
              student_id: user.username,
@@ -298,13 +318,16 @@ const StudentDashboard = () => {
                         <div className="space-y-4 mb-6">
                             {activeDates.map(d => {
                                 const st = polls[d] || { breakfast: false, lunch: false, dinner: false, hasAcknowledged: false };
-                                const locked = st.hasAcknowledged;
+                                const lockedByAdmin = isCampaignLocked(d);
+                                const locked = st.hasAcknowledged || lockedByAdmin;
                                 return (
                                     <div key={d} className="bg-gray-50 p-5 rounded-2xl border border-gray-200 relative overflow-hidden">
                                         {locked && <div className="absolute inset-0 bg-gray-100/40 z-10 pointer-events-none"></div>}
                                         <div className="flex justify-between items-center mb-4 relative z-20">
                                             <h4 className="font-bold text-gray-800 text-sm flex items-center gap-2"><Calendar className="w-4 h-4 text-orange-500"/> {d.split('-').reverse().join('-')}</h4>
-                                            {locked && <span className="px-2 py-0.5 bg-success/10 text-emerald-700 rounded text-[10px] uppercase font-extrabold flex items-center gap-1"><CheckCircle2 className="w-3 h-3"/> Locked Uneditable</span>}
+                                            {locked && <span className={`px-2 py-0.5 text-white rounded text-[10px] uppercase font-extrabold flex items-center gap-1 ${lockedByAdmin && !st.hasAcknowledged ? 'bg-rose-500' : 'bg-emerald-600'}`}>
+                                                <CheckCircle2 className="w-3 h-3"/> {lockedByAdmin && !st.hasAcknowledged ? 'Deadline Passed / Admin Locked' : 'Locked Uneditable'}
+                                            </span>}
                                         </div>
                                         
                                         <div className="flex justify-around items-center relative z-20">
