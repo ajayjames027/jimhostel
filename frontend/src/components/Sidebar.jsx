@@ -45,6 +45,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     { to: '/leave-management', label: 'Leave Management', icon: Calendar },
     { to: '/mess-poll', label: 'Mess Food Poll', icon: Coffee },
     { to: '/mess-menu', label: 'Digital Mess Menu', icon: Utensils },
+    { to: '/smart-controls', label: 'Smart IoT Controls', icon: Wrench },
     { to: '/maintenance', label: 'Maintenance Issues', icon: Wrench },
     { to: '/feedback', label: 'Student Feedback', icon: MessageSquare },
     { to: '/reports', label: 'Download Reports', icon: FileSpreadsheet },

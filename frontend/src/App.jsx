@@ -40,6 +40,7 @@ import FeedbackViewer from './pages/Shared/FeedbackViewer';
 import EGatePass from './pages/AD/EGatePass';
 import MyGatePasses from './pages/Student/MyGatePasses';
 import CollegeCalendar from './pages/AD/CollegeCalendar';
+import SmartControls from './pages/AD/SmartControls';
 
 // Guard for protected routes checking roles
 const RoleGuard = ({ allowedRoles, children }) => {
@@ -165,6 +166,11 @@ function App() {
               <Route path="mess-poll" element={
                 <RoleGuard allowedRoles={['AD', 'Admin', 'FoodCommittee']}>
                   <MessPoll />
+                </RoleGuard>
+              } />
+              <Route path="smart-controls" element={
+                <RoleGuard allowedRoles={['AD', 'Admin']}>
+                  <SmartControls />
                 </RoleGuard>
               } />
               <Route path="maintenance" element={
